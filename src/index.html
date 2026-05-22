@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>OmniHub</title>
+<link rel="stylesheet" href="style.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700&family=Orbitron:wght@400;500;600;700&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+<canvas id="particles-canvas"></canvas>
+<div id="app">
+
+  <!-- TITLEBAR -->
+  <div class="titlebar" id="titlebar">
+    <div class="titlebar-left">
+      <img class="app-logo" src="assets/icon.png" alt=""/>
+      <span class="app-name">OMNI<span class="accent">HUB</span></span>
+    </div>
+    <div class="titlebar-center">
+      <span class="offline-badge" id="offline-badge" style="display:none">⚠ Keine Verbindung</span>
+      <span class="vpn-badge" id="vpn-badge" style="display:none">🔒 VPN aktiv</span>
+    </div>
+    <div class="titlebar-right">
+      <button class="update-badge" id="update-badge" title="Update verfügbar" style="display:none">🚀</button>
+      <div class="titlebar-controls">
+        <button class="win-btn" id="btn-minimize" title="Minimieren">&#xE921;</button>
+        <button class="win-btn" id="btn-maximize" title="Maximieren">&#xE922;</button>
+        <button class="win-btn close" id="btn-close" title="Schließen">&#xE8BB;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-nav">
+        <!-- Haupt-Nav -->
+        <button class="nav-btn active" data-view="home" id="nav-home">
+          <svg class="nav-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span data-i18n="home">Übersicht</span>
+        </button>
+
+        <button class="nav-btn has-sub" id="nav-favs-toggle">
+          <svg class="nav-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span data-i18n="favorites">Favoriten</span>
+          <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="nav-sub" id="nav-favs-sub">
+          <input class="nav-sub-search-input nav-sub-search" type="text" placeholder="Suchen…" id="fav-search"/>
+          <div id="fav-sub-list"></div>
+          <div style="font-size:10.5px;color:var(--text3);padding:4px 8px;display:none" id="fav-empty">Noch keine Favoriten</div>
+        </div>
+
+        <button class="nav-btn" data-view="watchlist">
+          <svg class="nav-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+          <span data-i18n="watchlist">Gemerkt</span>
+        </button>
+
+        <button class="nav-btn" data-view="news">
+          <svg class="nav-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span data-i18n="news">Neuigkeiten</span>
+        </button>
+
+        <button class="nav-btn" data-view="upcoming">
+          <svg class="nav-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span data-i18n="upcoming">Upcoming</span>
+        </button>
+
+        <button class="nav-btn" data-view="stats">
+          <svg class="nav-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span data-i18n="stats">Statistiken</span>
+        </button>
+
+        <button class="nav-btn" data-view="stream" id="btn-watching" style="display:none">
+          <svg class="nav-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          <span data-i18n="watching">Schaut gerade</span>
+        </button>
+      </div>
+
+      <!-- CR Kalender Widget -->
+      <div class="sidebar-cr" id="sidebar-cr">
+        <div class="sidebar-cr-header" id="sidebar-cr-toggle">
+          <span>⛩️ CR Kalender</span>
+          <svg class="chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="sidebar-cr-body" id="sidebar-cr-body">
+          <div id="cr-mini-list"></div>
+          <a class="cr-open-link" href="#" id="cr-open-cr" data-i18n="openCR">▶ Crunchyroll öffnen</a>
+        </div>
+      </div>
+
+      <!-- Bottom -->
+      <div class="sidebar-bottom">
+        <div class="theme-row">
+          <span style="font-size:14px">🌙</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="theme-toggle"/>
+            <span class="toggle-slider"></span>
+          </label>
+          <span style="font-size:14px">☀️</span>
+        </div>
+        <div class="profile-row">
+          <select class="profile-select" id="profile-select"></select>
+          <button class="profile-add-btn" id="profile-add-btn" title="Profil hinzufügen">+</button>
+        </div>
+        <button class="sidebar-icon-btn" id="btn-settings">
+          <svg class="nav-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span data-i18n="settings">Einstellungen</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main" id="main">
+
+      <!-- VIEW: HOME -->
+      <div class="view active" id="view-home">
+        <div class="home-topbar">
+          <div class="search-wrap" id="search-wrap">
+            <div class="search-bar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="search-input" placeholder="Film, Serie, Anbieter suchen…" autocomplete="off"/>
+              <button class="search-clear" id="search-clear" style="display:none">✕</button>
+            </div>
+            <div class="search-dropdown" id="search-dropdown" style="display:none"></div>
+          </div>
+          <div class="home-actions">
+            <button class="home-action-btn" id="sort-alpha-btn" title="Alphabetisch sortieren">A↓Z</button>
+            <div class="layout-toggle">
+              <button class="layout-btn active" data-layout="normal" title="Normal">⊞</button>
+              <button class="layout-btn" data-layout="compact" title="Kompakt">⊟</button>
+              <button class="layout-btn" data-layout="mini" title="Mini">⊠</button>
+            </div>
+            <button class="home-action-btn" id="add-provider-btn" title="Anbieter hinzufügen">+</button>
+          </div>
+        </div>
+        <div class="providers-wrap" id="providers-wrap"></div>
+      </div>
+
+      <!-- VIEW: STREAM -->
+      <div class="view" id="view-stream" style="padding:0">
+        <div class="stream-topbar" id="stream-topbar">
+          <button class="stream-btn" id="btn-back">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            <span data-i18n="back">Zurück</span>
+          </button>
+          <span id="stream-title"></span>
+          <button class="stream-btn" id="btn-pip" title="Miniplayer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><rect x="12" y="10" width="10" height="7" rx="1"/></svg>
+          </button>
+          <button class="stream-btn" id="btn-second-window" title="Zweites Fenster">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h6"/></svg>
+          </button>
+          <button class="stream-btn" id="btn-fullscreen" title="Vollbild (F11)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+          </button>
+          <button class="stream-btn" id="btn-retry" title="Neu laden">↺</button>
+          <button class="stream-btn" id="btn-logout-provider" data-i18n="logout">Abmelden</button>
+          <button class="stream-btn" id="btn-stop" style="color:#ff5555">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+            <span data-i18n="stop">Stop</span>
+          </button>
+        </div>
+        <div class="stream-tabs-bar" id="stream-tabs-bar" style="display:none"></div>
+        <div id="webview-wrap">
+          <iframe id="main-webview" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-presentation allow-top-navigation" allowfullscreen></iframe>
+        </div>
+      </div>
+
+      <!-- VIEW: WATCHLIST -->
+      <div class="view" id="view-watchlist">
+        <div class="view-title" data-i18n="watchlist">Gemerkt</div>
+        <div class="watchlist-header">
+          <div class="media-type-switcher">
+            <button class="mts-btn active" data-wl-type="all" data-i18n="all">Alle</button>
+            <button class="mts-btn" data-wl-type="movie">🎬 <span data-i18n="movies">Filme</span></button>
+            <button class="mts-btn" data-wl-type="tv">📺 <span data-i18n="shows">Serien</span></button>
+            <button class="mts-btn" data-wl-type="anime">⛩️ Anime</button>
+          </div>
+          <select class="watchlist-sort" id="watchlist-sort">
+            <option value="az" data-i18n="sortAZ">A–Z</option>
+            <option value="date" data-i18n="sortDate">Datum</option>
+          </select>
+        </div>
+        <div class="watchlist-grid" id="watchlist-grid"></div>
+        <div id="watchlist-empty" style="display:none;color:var(--text3);font-size:13px;padding:20px 0" data-i18n="wlEmpty">Noch nichts gemerkt.</div>
+      </div>
+
+      <!-- VIEW: NEWS -->
+      <div class="view" id="view-news" style="padding:0">
+        <div class="media-view" id="news-view">
+          <div class="media-topbar">
+            <div class="media-type-text">
+              <button class="mtt-btn active" data-media-type="movies" data-view-id="news">🎬 <span data-i18n="movies">Filme</span></button>
+              <button class="mtt-btn" data-media-type="shows" data-view-id="news">📺 <span data-i18n="shows">Serien</span></button>
+              <button class="mtt-btn" data-media-type="anime" data-view-id="news">⛩️ Anime</button>
+            </div>
+            <div class="media-tabs">
+              <button class="media-tab active" data-news-tab="trending" data-i18n="trending">Trending</button>
+              <button class="media-tab" data-news-tab="new" data-i18n="newReleases">Neu</button>
+              <button class="media-hide-btn" id="news-hidden-btn" title="Ausgeblendete anzeigen">👁️‍🗨️</button>
+            </div>
+          </div>
+          <div class="slideshow" id="news-slideshow">
+            <div class="slide-bg" id="news-bg"></div>
+            <div class="slide-bg-overlay"></div>
+            <button class="slide-arrow left" id="news-prev">&#8249;</button>
+            <button class="slide-arrow right" id="news-next">&#8250;</button>
+            <div class="current-title" id="news-current-title"></div>
+            <div class="slide-track" id="news-track"></div>
+            <div class="slide-dots" id="news-dots"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: UPCOMING -->
+      <div class="view" id="view-upcoming" style="padding:0">
+        <div class="media-view" id="upcoming-view">
+          <div class="media-topbar">
+            <div class="media-type-text">
+              <button class="mtt-btn active" data-media-type="movies" data-view-id="upcoming">🎬 <span data-i18n="movies">Filme</span></button>
+              <button class="mtt-btn" data-media-type="shows" data-view-id="upcoming">📺 <span data-i18n="shows">Serien</span></button>
+              <button class="mtt-btn" data-media-type="anime" data-view-id="upcoming">⛩️ Anime</button>
+            </div>
+            <div class="media-tabs">
+              <div class="range-btns">
+                <button class="range-btn active" data-months="1" data-i18n="month1">1 Monat</button>
+                <button class="range-btn" data-months="6" data-i18n="months6">6 Monate</button>
+                <button class="range-btn" data-months="12" data-i18n="year1">1 Jahr</button>
+              </div>
+              <button class="media-hide-btn" id="upcoming-hidden-btn" title="Ausgeblendete anzeigen">👁️‍🗨️</button>
+            </div>
+          </div>
+          <div class="slideshow" id="upcoming-slideshow">
+            <div class="slide-bg" id="upcoming-bg"></div>
+            <div class="slide-bg-overlay"></div>
+            <button class="slide-arrow left" id="upcoming-prev">&#8249;</button>
+            <button class="slide-arrow right" id="upcoming-next">&#8250;</button>
+            <div class="current-title" id="upcoming-current-title"></div>
+            <div class="slide-track" id="upcoming-track"></div>
+            <div class="slide-dots" id="upcoming-dots"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: STATS -->
+      <div class="view" id="view-stats">
+        <div class="view-title" data-i18n="stats">Statistiken</div>
+        <div class="stats-grid" id="stats-grid"></div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /body -->
+</div><!-- /app -->
+
+<!-- PiP Window -->
+<div class="pip-window" id="pip-window">
+  <div class="pip-topbar" id="pip-topbar">
+    <span class="pip-title" id="pip-title">Miniplayer</span>
+    <div class="pip-actions">
+      <button class="pip-btn" id="pip-expand" title="Vergrößern">⤢</button>
+      <button class="pip-btn" id="pip-close" title="Schließen">✕</button>
+    </div>
+  </div>
+  <div id="pip-content"></div>
+</div>
+
+<!-- Fullscreen Exit -->
+<button class="fullscreen-exit-btn" id="fullscreen-exit">✕ Vollbild beenden</button>
+
+<!-- CLOCK -->
+<div id="clock" style="display:none"></div>
+<div class="clock-context-menu" id="clock-context">
+  <div class="clock-context-item" id="clock-disable" data-i18n="disableClock">Uhr deaktivieren</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text" data-i18n="loading">Laden…</div>
+</div>
+
+<!-- DETAIL POPUP -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-box" id="detail-box">
+    <button class="detail-close" id="detail-close">✕</button>
+    <div style="position:relative">
+      <img class="detail-backdrop" id="detail-backdrop" src="" alt=""/>
+      <div class="detail-backdrop-grad"></div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-top">
+        <img class="detail-poster" id="detail-poster" src="" alt=""/>
+        <div class="detail-meta">
+          <div class="detail-badges" id="detail-badges"></div>
+          <div class="detail-title" id="detail-title"></div>
+        </div>
+      </div>
+      <div class="detail-desc" id="detail-desc"></div>
+      <div class="detail-providers" id="detail-providers"></div>
+      <div class="detail-actions">
+        <button class="detail-btn" id="detail-where" data-i18n="whereStream">Wo streamen?</button>
+        <button class="detail-btn" id="detail-google">Google</button>
+        <button class="detail-btn" id="detail-bookmark">🔖 <span data-i18n="bookmark">Merken</span></button>
+      </div>
+      <div class="trailer-wrap" id="detail-trailer" style="display:none">
+        <iframe id="detail-trailer-frame" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HIDDEN ITEMS PANEL -->
+<div class="hidden-panel" id="hidden-panel">
+  <div class="hidden-panel-box">
+    <div class="hidden-panel-header">
+      <span class="hidden-panel-title" data-i18n="hiddenItems">Ausgeblendete Einträge</span>
+      <button class="modal-close" id="hidden-panel-close">✕</button>
+    </div>
+    <div class="hidden-panel-grid" id="hidden-panel-grid"></div>
+  </div>
+</div>
+
+<!-- CARD EDITOR MODAL -->
+<div class="modal-overlay" id="card-editor-overlay">
+  <div class="modal" id="card-editor-modal">
+    <div class="modal-header">
+      <span class="modal-title" data-i18n="editCard">Karte bearbeiten</span>
+      <button class="modal-close" id="card-editor-close">✕</button>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" data-i18n="displayName">Anzeige-Name</label>
+      <input class="modal-input" id="edit-name" type="text"/>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" data-i18n="description">Beschreibung</label>
+      <input class="modal-input" id="edit-tag" type="text"/>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" data-i18n="logo">Logo/Icon</label>
+      <button class="modal-pick-btn" id="edit-logo-pick">📁 <span data-i18n="pickFile">Datei wählen</span></button>
+      <img class="modal-image-preview" id="edit-logo-preview" src="" alt=""/>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" data-i18n="bgImage">Hintergrundbild</label>
+      <button class="modal-pick-btn" id="edit-bg-pick">📁 <span data-i18n="pickFile">Datei wählen</span></button>
+      <img class="modal-image-preview" id="edit-bg-preview" src="" alt=""/>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" data-i18n="bgPosX">Bild-Position X</label>
+      <div class="modal-slider-wrap">
+        <input class="modal-slider" type="range" id="edit-pos-x" min="-300" max="300" value="0"/>
+        <span class="modal-slider-val" id="edit-pos-x-val">0</span>
+      </div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" data-i18n="bgPosY">Bild-Position Y</label>
+      <div class="modal-slider-wrap">
+        <input class="modal-slider" type="range" id="edit-pos-y" min="-300" max="300" value="0"/>
+        <span class="modal-slider-val" id="edit-pos-y-val">0</span>
+      </div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" data-i18n="bgOpacity">Bild-Transparenz</label>
+      <div class="modal-slider-wrap">
+        <input class="modal-slider" type="range" id="edit-opacity" min="0" max="100" value="100"/>
+        <span class="modal-slider-val" id="edit-opacity-val">100%</span>
+      </div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" data-i18n="bgColor">Hintergrundfarbe</label>
+      <div class="modal-color-row">
+        <input type="color" id="edit-color" value="#141420"/>
+        <input class="modal-input" type="text" id="edit-color-hex" value="#141420" style="flex:1;font-family:monospace"/>
+      </div>
+    </div>
+    <div class="modal-row" style="margin-top:16px">
+      <button class="modal-btn secondary" id="edit-reset" data-i18n="reset">Reset</button>
+      <button class="modal-btn primary" id="edit-save" data-i18n="save">Speichern</button>
+    </div>
+    <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px">
+      <button class="modal-btn danger" id="edit-delete" data-i18n="deleteProvider">Anbieter löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PROVIDER MODAL -->
+<div class="modal-overlay" id="add-provider-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" data-i18n="addProvider">Anbieter hinzufügen</span>
+      <button class="modal-close" id="add-provider-close">✕</button>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" data-i18n="name">Name</label>
+      <input class="modal-input" id="new-provider-name" type="text" placeholder="z.B. Mein Stream"/>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">URL</label>
+      <input class="modal-input" id="new-provider-url" type="url" placeholder="https://..."/>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" data-i18n="bgColor">Farbe</label>
+      <div class="modal-color-row">
+        <input type="color" id="new-provider-color" value="#30c5bb"/>
+        <input class="modal-input" type="text" id="new-provider-color-hex" value="#30c5bb" style="flex:1;font-family:monospace"/>
+      </div>
+    </div>
+    <div class="modal-row" style="margin-top:16px">
+      <button class="modal-btn secondary" id="add-provider-cancel" data-i18n="cancel">Abbrechen</button>
+      <button class="modal-btn primary" id="add-provider-save" data-i18n="add">Hinzufügen</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profile-modal-overlay">
+  <div class="modal" style="max-width:340px;text-align:center">
+    <div class="modal-header">
+      <span class="modal-title" id="profile-modal-title">Profil erstellen</span>
+      <button class="modal-close" id="profile-modal-close">✕</button>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" data-i18n="profileName">Profilname</label>
+      <input class="modal-input" id="profile-name-input" type="text" placeholder="Profilname…"/>
+    </div>
+    <div class="modal-row" style="margin-top:16px">
+      <button class="modal-btn secondary" id="profile-modal-cancel" data-i18n="cancel">Abbrechen</button>
+      <button class="modal-btn primary" id="profile-modal-save" data-i18n="create">Erstellen</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE DELETE MODAL -->
+<div class="modal-overlay profile-delete-modal" id="profile-delete-overlay">
+  <div class="modal" style="max-width:360px;text-align:center">
+    <div class="profile-delete-icon">🗑️</div>
+    <div class="modal-title" id="profile-delete-title" style="font-size:16px;margin-bottom:10px"></div>
+    <div class="profile-delete-text" id="profile-delete-text"></div>
+    <div class="modal-row">
+      <button class="modal-btn secondary" id="profile-delete-cancel" data-i18n="cancel">Abbrechen</button>
+      <button class="modal-btn danger" id="profile-delete-confirm" data-i18n="delete">Löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS PANEL -->
+<div class="settings-overlay" id="settings-overlay"></div>
+<div class="settings-panel" id="settings-panel">
+  <div class="settings-header">
+    <div class="settings-header-left">
+      <span class="settings-title" data-i18n="settings">Einstellungen</span>
+      <span class="settings-version">v1.0.0</span>
+    </div>
+    <button class="settings-close" id="settings-close">✕</button>
+  </div>
+  <div class="settings-tabs">
+    <button class="settings-tab active" data-stab="design" data-i18n="design">Design</button>
+    <button class="settings-tab" data-stab="account" data-i18n="account">Account</button>
+    <button class="settings-tab" data-stab="clock" data-i18n="clock">Uhr</button>
+    <button class="settings-tab" data-stab="plugins" data-i18n="plugins">Plugins</button>
+    <button class="settings-tab" data-stab="more" data-i18n="more">Mehr</button>
+  </div>
+  <div class="settings-body" id="settings-body">
+    <!-- Dynamisch befüllt von app.js -->
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="tauri-bundle.js"></script>
+<script src="tauri-event-bundle.js"></script>
+<script src="tauri-api.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

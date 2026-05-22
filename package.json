@@ -1,0 +1,23 @@
+{
+  "name": "omnihub",
+  "version": "1.0.0",
+  "description": "OmniHub – Dein zentrales Streaming-Hub",
+  "author": "Percival Aletheos",
+  "license": "MIT",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "npm run bundle && tauri dev",
+    "build": "npm run bundle && tauri build",
+    "bundle": "esbuild --bundle --format=iife --global-name=TauriAPI --outfile=src/tauri-bundle.js node_modules/@tauri-apps/api/core.js && esbuild --bundle --format=iife --global-name=TauriEvent --outfile=src/tauri-event-bundle.js node_modules/@tauri-apps/api/event.js",
+    "make-icon": "node scripts/generate-icons.js"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.0.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0",
+    "esbuild": "^0.21.0",
+    "sharp": "^0.33.4",
+    "png-to-ico": "^2.1.8"
+  }
+}
