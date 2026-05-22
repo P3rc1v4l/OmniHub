@@ -1,6 +1,6 @@
 [package]
 name        = "omnihub"
-version     = "1.0.0"
+version     = "1.0.1"
 description = "OmniHub – Dein zentrales Streaming-Hub"
 authors     = ["Percival Aletheos"]
 license     = "MIT"
@@ -34,9 +34,20 @@ tokio       = { version = "1", features = ["full"] }
 url         = "2"
 urlencoding = "2"
 
+# Release: schneller als full-LTO, reicht für Produktion
 [profile.release]
 panic         = "abort"
 codegen-units = 1
 lto           = "thin"
 opt-level     = "s"
 strip         = true
+
+# Dev-Build: schnell für lokale Tests
+[profile.dev]
+opt-level     = 0
+debug         = false
+incremental   = true
+
+# Dependencies in Release mit höherer Optimierung (einmal gecacht, dann schnell)
+[profile.release.package."*"]
+opt-level = 3

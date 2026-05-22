@@ -4,6 +4,21 @@ Alle Versionsänderungen werden hier kumulativ festgehalten.
 
 ---
 
+## [1.0.1] – Bugfixes & Build-Optimierung
+
+### Behoben
+- Rust E0308: `Store`-Rückgabetyp auf `Arc<Store<Wry>>` korrigiert (tauri-plugin-store v2.4+)
+- Rust E0308: `.replace('\\', '/')` → `.replace('\\', "/")` (char vs. &str)
+
+### Build
+- GitHub Actions Cache komplett neu: `actions/cache@v4` mit stabilem Key basierend auf `Cargo.toml`
+- Cargo Registry-Cache getrennt vom Build-Cache → bei Dependency-Änderungen nur nötige Teile neu laden
+- `npm ci` statt `npm install` (schneller, reproduzierbar dank package-lock.json)
+- Cargo-Profil: Dependencies im Release mit `opt-level = 3` (einmal kompiliert, dann gecacht)
+- **Erwartete Build-Zeit nach erstem erfolgreichen Build: ~2–3 Minuten** (statt ~10 Minuten)
+
+---
+
 ## [1.0.0] – Kompletter Neuaufbau auf Tauri-Basis
 
 ### Neu

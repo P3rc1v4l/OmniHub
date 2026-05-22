@@ -115,7 +115,7 @@ fn win(app: &tauri::AppHandle) -> Option<tauri::WebviewWindow> {
     app.get_webview_window("main")
 }
 
-fn store(app: &tauri::AppHandle) -> tauri_plugin_store::Store<tauri::Wry> {
+fn store(app: &tauri::AppHandle) -> std::sync::Arc<tauri_plugin_store::Store<tauri::Wry>> {
     app.store(STORE).unwrap()
 }
 
@@ -394,7 +394,7 @@ fn store(app: &tauri::AppHandle) -> tauri_plugin_store::Store<tauri::Wry> {
     let ts = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_millis();
     let dst = dir.join(format!("{dest}_{ts}.{ext}"));
     std::fs::copy(src, &dst).ok()?;
-    Some(format!("file://{}",dst.to_string_lossy().replace('\\','/')))
+    Some(format!("file://{}",dst.to_string_lossy().replace('\\', "/")))
 }
 
 // ═══ EXTERNES ÖFFNEN ═══════════════════════════════════════════════════════
