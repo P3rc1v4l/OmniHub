@@ -1248,11 +1248,9 @@ function setupQuickLauncher(){
 
 // ══ STATISTIKEN TEILEN ═════════════════════════════════════════════
 async function shareStats(){
-  // Electron: Screenshot des Stat-Bereichs
+  // Screenshot/Export der Statistiken (WebView-kompatibel, kein Electron)
   try{
-    const {nativeImage}=require('electron');
-    // Wir nutzen window.electronAPI für einen IPC-Screenshot
-    showToastMsg('📸 Screenshot wird erstellt…');
+    showToastMsg('📸 Statistiken werden exportiert…');
     // Fallback: HTML-Canvas Screenshot über html2canvas wenn verfügbar
     const statsEl=document.getElementById('stats-content');
     if(!statsEl)return;

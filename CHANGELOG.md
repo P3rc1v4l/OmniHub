@@ -1,5 +1,51 @@
 # OmniHub – Changelog
 
+## v0.3.5 – 2026-05-28
+
+### 🔴 HAUPTFEHLER GEFUNDEN: App startete nicht (mehrere Ursachen)
+
+Nach systematischer Durchsicht aller Dateien wurden **4 separate Fehler** gefunden, die zusammen verhinderten dass die App startet:
+
+#### Fehler 1: ES-Imports ohne Bundler (Hauptursache)
+`tauri-bridge.js` nutzte `import { invoke } from '@tauri-apps/api/core'`. Da das Projekt **keinen Bundler** (Vite/Webpack) hat, kann der Browser diese "bare module specifier" nicht auflösen → Modul lädt nicht → `window.electronAPI` wird nie definiert → jeder `init()`-Aufruf crasht sofort.
+- **Fix**: `withGlobalTauri: true` in `tauri.conf.json` aktiviert
+- **Fix**: `tauri-bridge.js` komplett auf `window.__TAURI__` umgeschrieben (keine Imports), wird als normales `<script>` geladen
+
+#### Fehler 2: Fehlender capabilities/ Ordner
+In Tauri v2 muss jede Berechtigung explizit freigegeben werden. Ohne `capabilities/` konnte das Frontend keine Commands aufrufen und das Fenster nicht anzeigen.
+- **Fix**: `capabilities/default.json` mit allen nötigen Permissions erstellt
+
+#### Fehler 3: Globale const-Kollisionen
+`fixes.js` und `patches.js` deklarierten beide `const DISCORD_URL`, `_origInit`, `_origFeedback`, `_origShowOnboarding` im globalen Scope → SyntaxError → `patches.js` brach komplett ab.
+- **Fix**: `patches.js` in IIFE gekapselt → consts sind jetzt lokal
+
+#### Fehler 4: Electron-Reste
+`app.js` nutzte `require('electron')` (existiert im WebView nicht).
+- **Fix**: Electron-Code aus `shareStats()` entfernt
+
+### Weitere Verbesserungen
+- Fenster jetzt `visible: true` + Splash-Overlay (robuster als `visible:false` + show())
+- Splash nutzt `omnihub-ready` Event statt init()-Wrapping (race-condition-frei) + 10s Sicherheits-Timeout
+- Icons auf korrekte Größen skaliert (32x32 war fälschlich 256x256)
+- Echte Multi-Resolution `icon.ico` erzeugt (16/32/48/64/128/256)
+- `trayIcon` aus Config entfernt + `tray-icon` Feature aus Cargo.toml (war ungenutzt, potenzielle Crash-Quelle)
+- `main.js` gelöscht (war ungenutzt)
+
+### Geänderte/Neue/Gelöschte Dateien
+| Datei | Was | Status |
+|---|---|---|
+| `src-tauri/capabilities/default.json` | Alle Tauri v2 Permissions | ✅ NEU |
+| `src-tauri/tauri.conf.json` | `withGlobalTauri:true`, `visible:true`, trayIcon entfernt | geändert |
+| `src-tauri/Cargo.toml` | `tray-icon` Feature entfernt | geändert |
+| `src-tauri/icons/*` | Korrekte Größen + echte ICO | geändert |
+| `src/js/tauri-bridge.js` | Komplett auf `window.__TAURI__` umgeschrieben | geändert |
+| `src/js/app.js` | `require('electron')` entfernt | geändert |
+| `src/js/patches.js` | In IIFE gekapselt, `omnihub-ready` Event | geändert |
+| `src/js/main.js` | Ungenutzt | 🗑 GELÖSCHT |
+| `src/index.html` | tauri-bridge als normales Script (zuerst), Event-basierter Splash | geändert |
+
+---
+
 ## v0.3.4 – 2026-05-28
 
 ### 🔴 Crash-Fix: App startet nicht (0xc0000409)

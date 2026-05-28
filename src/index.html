@@ -804,45 +804,40 @@
 </script>
 
 
-<!-- Splash ausblenden + Fenster zeigen nach init() -->
+<!-- Splash ausblenden wenn App bereit (Event) + Sicherheits-Timeout -->
 <script>
 (function() {
-  var _origInit = null;
-  // Warte bis init() definiert ist
-  var _waitTimer = setInterval(function() {
-    if (typeof window.init !== 'function') return;
-    clearInterval(_waitTimer);
+  var _splashHidden = false;
 
-    var _origFn = window.init;
-    window.init = async function() {
+  function hideSplash(reason) {
+    if (_splashHidden) return;
+    _splashHidden = true;
+    console.log('[OmniHub] Splash ausblenden:', reason);
+    var overlay = document.getElementById('splash-overlay');
+    if (overlay) {
+      overlay.classList.add('hiding');
+      setTimeout(function() {
+        overlay.remove();
+        var style = document.getElementById('splash-style');
+        if (style) style.remove();
+      }, 450);
+    }
+    (async function() {
       try {
-        await _origFn.apply(this, arguments);
-      } catch(e) {
-        console.error('[OmniHub] init Fehler:', e);
-      }
-      // Splash ausblenden
-      var overlay = document.getElementById('splash-overlay');
-      if (overlay) {
-        overlay.classList.add('hiding');
-        setTimeout(function() {
-          overlay.remove();
-          var style = document.getElementById('splash-style');
-          if (style) style.remove();
-        }, 450);
-      }
-      // Fenster anzeigen (war visible:false)
-      try {
-        var tauri = window.__TAURI_INTERNALS__;
-        if (tauri) {
-          // Tauri v2: getCurrentWindow().show()
-          var { getCurrentWindow } = await import('@tauri-apps/api/window');
-          await getCurrentWindow().show();
+        if (window.__TAURI__ && window.__TAURI__.window) {
+          var w = window.__TAURI__.window.getCurrentWindow();
+          await w.show();
+          await w.setFocus();
         }
-      } catch(e) {
-        console.warn('[OmniHub] Fenster-Show fehlgeschlagen:', e);
-      }
-    };
-  }, 50);
+      } catch(e) { /* Fenster ist via visible:true bereits sichtbar */ }
+    })();
+  }
+
+  // App signalisiert Bereitschaft (von patches.js nach init())
+  window.addEventListener('omnihub-ready', function() { hideSplash('omnihub-ready Event'); });
+
+  // SICHERHEITS-TIMEOUT: Falls init() hängt/fehlt → nach 10s trotzdem zeigen
+  setTimeout(function() { hideSplash('Sicherheits-Timeout (10s)'); }, 10000);
 })();
 </script>
 
@@ -865,10 +860,9 @@ window.onerror = function(msg, src, line, col, err) {
   return false;
 };
 </script>
-<!-- Tauri Bridge: window.electronAPI kompatibel -->
-<script type="module" src="js/tauri-bridge.js"></script>
-<!-- OmniHub Module v0.3.0 -->
-<!-- Module werden von main.js in der richtigen Reihenfolge geladen -->
+<!-- Tauri Bridge: window.electronAPI (normales Script, nutzt window.__TAURI__) -->
+<script src="js/tauri-bridge.js"></script>
+<!-- OmniHub Module v0.3.5 -->
 <script src="js/core/i18n.js"></script>
 <script src="js/core/providers.js"></script>
 <script src="js/core/achievements.js"></script>

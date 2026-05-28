@@ -7,6 +7,11 @@
 // ── 1. Fehlende Definitionen ─────────────────────────────────────────
 
 // ACH_CATS war in OmniSight als separate Variable, hier nachdefinieren
+
+// IIFE-Kapselung: verhindert globale const-Kollisionen mit fixes.js
+(function() {
+"use strict";
+
 if (typeof ACH_CATS === 'undefined') {
   var ACH_CATS = {
     stream:   { de: '⏱ Streamzeit',   en: 'Stream Time' },
@@ -196,6 +201,8 @@ if (_origInit) {
     if (typeof buildCategoryFilterBar === 'function') {
       buildCategoryFilterBar();
     }
+    // Splash-Overlay signalisieren dass die App bereit ist
+    try { window.dispatchEvent(new Event('omnihub-ready')); } catch {}
   };
 }
 
@@ -427,3 +434,6 @@ document.addEventListener('_omnihub_sessions', e => {
 // aber wird nicht mehr per <script> geladen.
 
 console.log('[OmniHub v0.3.0] Session-Isolation + Splash-Patches geladen ✓');
+
+
+})(); // Ende patches.js IIFE
