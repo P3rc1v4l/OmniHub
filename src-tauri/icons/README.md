@@ -1,16 +1,17 @@
 # App-Icons
 
-Dieser Ordner muss die App-Icons enthalten, die in `tauri.conf.json` referenziert
-werden (`32x32.png`, `128x128.png`, `128x128@2x.png`, `icon.icns`, `icon.ico`).
+Diese Icons sind bereits **fertig erzeugt und im Repo enthalten** – der Build
+funktioniert sofort, ohne dass du lokal etwas installieren oder ausführen musst:
 
-Die werden **automatisch** aus einem einzigen Quellbild erzeugt. Lege ein
-quadratisches PNG (mind. 1024×1024 px) z.B. als `app-icon.png` ins Projekt-Root
-und führe aus:
+- `32x32.png`, `128x128.png`, `128x128@2x.png` (256px)
+- `icon.ico` (Windows, multi-resolution)
+- `icon.icns` (macOS)
+- `icon.png` (1024px Quell-Icon)
 
-```bash
-npm run tauri icon ./app-icon.png
-```
+## Eigenes Icon verwenden (optional)
 
-Danach liegen alle benötigten Icon-Dateien hier und der Build funktioniert.
-Solange noch keine Icons vorhanden sind, schlägt `npm run tauri:build` mit einer
-Icon-Fehlermeldung fehl – `npm run tauri:dev` läuft aber trotzdem.
+Du willst dein eigenes Logo? Dann ersetze einfach `icon.png` (quadratisch,
+mind. 1024×1024) über die GitHub-Weboberfläche und committe es. Beim nächsten
+Workflow-Lauf wird daraus automatisch alles erzeugt – ein extra Schritt in der
+Action ruft `tauri icon` auf, falls du das aktivierst. Aktuell sind die
+Platzhalter-Icons (ember Quadrat mit „O") aktiv.

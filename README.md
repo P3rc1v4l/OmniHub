@@ -8,43 +8,38 @@ TMDB-Metadaten.
 
 ---
 
-## Voraussetzungen
+## Release bauen – komplett in GitHub, ohne lokale Installation
 
-| Tool | Version | Zweck |
-|---|---|---|
-| Node.js | ≥ 20 | Frontend-Build |
-| Rust (rustup) | stable | Tauri-Backend |
-| Microsoft Edge WebView2 | — | unter Windows i.d.R. vorinstalliert |
+Du brauchst auf deinem PC **nichts** außer der fertigen `.exe`. Der gesamte Build
+läuft auf GitHubs Servern:
 
-Tauri-Systemvoraussetzungen: https://v2.tauri.app/start/prerequisites/
+1. Code liegt in GitHub (Bearbeiten geht direkt über die Weboberfläche).
+2. **Actions-Tab → „Release" → *Run workflow*** klicken
+   *(oder einen Tag pushen, z.B. `v0.1.1`).*
+3. GitHub baut die App und legt einen **Release-Entwurf** an.
+4. Im **Releases-Tab** den Entwurf öffnen → **„Publish release"** → fertig.
+5. Du und deine Nutzer ladet die `.exe`/den Installer aus dem Release herunter.
 
-## Einrichten
+> Hinweis: Der Release wird als *Entwurf* erstellt (`releaseDraft: true`), damit
+> du ihn vor der Veröffentlichung prüfen kannst. Möchtest du, dass er sofort
+> öffentlich ist, setze in `.github/workflows/release.yml` `releaseDraft: false`.
+
+---
+
+## Optional: lokale Entwicklung
+
+Nur falls du selbst am Code entwickeln willst (für Nutzer **nicht** nötig):
+
+| Tool | Version |
+|---|---|
+| Node.js | ≥ 20 |
+| Rust (rustup) | stable |
+| Edge WebView2 | unter Windows meist vorinstalliert |
 
 ```bash
 npm install
+npm run tauri:dev      # App-Fenster mit Hot-Reload
 ```
-
-## Entwicklung (App-Fenster)
-
-```bash
-npm run tauri:dev
-```
-
-> Reine Web-Vorschau (ohne Tauri-Funktionen) geht auch mit `npm run dev`
-> und Öffnen von http://localhost:1420 im Browser.
-
-## Build (Windows-Installer)
-
-```bash
-npm run tauri:build
-```
-
-Das fertige Paket liegt danach unter `src-tauri/target/release/bundle/`.
-
-## Release über GitHub Actions
-
-- **Manuell:** Actions-Tab → „Release" → *Run workflow*
-- **Automatisch:** Tag pushen, z.B. `git tag v0.1.0 && git push origin v0.1.0`
 
 ## Links
 

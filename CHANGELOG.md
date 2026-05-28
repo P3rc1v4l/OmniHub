@@ -4,6 +4,21 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.1.1] – 2026-05-28
+
+### Behoben
+- **CI-Build lief nicht ohne lokale Vorarbeit.** Der Release-Workflow brauchte vorher eine committete `package-lock.json` (`npm ci` + npm-Cache). Umgestellt auf `npm install` ohne Cache – die Lock-Datei wird jetzt direkt auf dem GitHub-Runner erzeugt. **Es muss lokal nichts mehr installiert oder ausgeführt werden.**
+
+### Hinzugefügt
+- **App-Icons fertig im Repo** (`32x32.png`, `128x128.png`, `128x128@2x.png`, `icon.ico`, `icon.icns`, `icon.png`). Der Build benötigt keinen lokalen `tauri icon`-Aufruf mehr.
+- Workflow liest die **Versionsnummer automatisch aus `package.json`**, damit auch der manuelle Start (`workflow_dispatch`) einen sauberen Release-Tag erzeugt.
+
+### Geändert
+- Versionsnummer in `package.json`, `Cargo.toml`, `tauri.conf.json` und `version.ts` auf 0.1.1 angehoben.
+- `Swatinem/rust-cache` korrekt groß geschrieben.
+
+---
+
 ## [0.1.0] – 2026-05-28
 
 ### Hinzugefügt (Grundgerüst)
