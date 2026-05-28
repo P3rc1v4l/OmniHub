@@ -1,6 +1,6 @@
 [package]
 name = "omnihub"
-version = "0.3.2"
+version = "0.3.3"
 description = "OmniHub – Dein zentraler Streaming-Hub"
 authors = ["P3rc1v4l"]
 edition = "2021"
@@ -36,7 +36,6 @@ dirs         = "5"
 chrono       = { version = "0.4", features = ["serde"] }
 once_cell    = "1"
 urlencoding  = "2"
-url          = { version = "2", features = ["serde"] }
 open         = "5"
 tracing      = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

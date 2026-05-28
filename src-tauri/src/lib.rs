@@ -1,5 +1,5 @@
 // OmniHub – Tauri Library
-// ═══ v0.3.2 – Compile-Fixes ═══
+// ═══ v0.3.3 – Splash via JS/CSS, kein Rust-Navigation ═══
 
 use tauri::{Emitter, Manager, WindowEvent};
 use tauri_plugin_store::StoreExt;
@@ -54,7 +54,6 @@ pub fn run() {
             commands::system::pick_image,
             commands::system::check_online,
             commands::system::get_system_theme,
-            commands::splash::splash_done,
             commands::sessions::get_partition_name,
             commands::sessions::set_session_active,
             commands::sessions::get_active_sessions,
@@ -111,13 +110,11 @@ pub fn run() {
 
 #[cfg(target_os = "windows")]
 fn is_dark_mode() -> bool {
-    // Fehler: Output implementiert kein Default → map statt unwrap_or_default
     std::process::Command::new("reg")
         .args([
             "query",
             r"HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
-            "/v",
-            "AppsUseLightTheme",
+            "/v", "AppsUseLightTheme",
         ])
         .output()
         .map(|o| String::from_utf8_lossy(&o.stdout).contains("0x0"))

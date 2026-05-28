@@ -94,7 +94,6 @@ window.electronAPI = {
   },
 
   // ── Splash ────────────────────────────────────────────────────────
-  splashDone: () => invoke('splash_done'),
 
   // ── Session-Isolation (v0.3.0 – echter Rust-Backend) ─────────────
   getPartitionName:   (pid, provId)      => invoke('get_partition_name',    { profileId: pid, providerId: provId }),

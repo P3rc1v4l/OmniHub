@@ -5,5 +5,4 @@ pub mod achievements;
 pub mod notifications;
 pub mod tmdb;
 pub mod system;
-pub mod splash;
 pub mod sessions;

@@ -1,5 +1,26 @@
 # OmniHub – Changelog
 
+## v0.3.3 – 2026-05-28
+
+### Bugfix: App startet nicht nach Installation
+- **Ursache**: Fenster startete mit `splash.html`, `splash_done` in Rust versuchte `"index.html".parse()` als URL zu navigieren → ungültiger URL-Parse, App-Crash beim Start
+- **Fix**: Splash komplett aus Rust entfernt. Stattdessen:
+  - Fenster startet direkt mit `index.html` (`visible: false`)
+  - CSS/JS-Overlay in `index.html` zeigt Ladebildschirm
+  - Nach `init()` wird Overlay ausgeblendet + `appWindow.show()` aufgerufen
+  - Kein Rust-seitiger Navigation-Befehl mehr nötig
+
+### Bugfix: MSI-Installer überflüssig entfernt
+- **Ursache**: `targets: "all"` erzeugt NSIS (.exe) **und** WiX (.msi)
+- **MSI-Zweck**: Für Enterprise-Deployments via Group Policy / SCCM – für normale User nicht nötig
+- **Fix**: `targets: ["nsis"]` → nur noch eine `.exe` im Release
+
+### Gelöschte Dateien
+- `src-tauri/src/commands/splash.rs` – nicht mehr benötigt
+- `src/splash.html` – nicht mehr benötigt (Splash ist jetzt im index.html integriert)
+
+---
+
 ## v0.3.2 – 2026-05-28
 
 ### Bugfixes: 7 Rust Compile-Fehler

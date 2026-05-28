@@ -8,6 +8,69 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Inter:wght@300;400;500&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;500;700&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 </head>
 <body>
+
+<style id="splash-style">
+  /* ═══ Splash Overlay ═══ */
+  #splash-overlay {
+    position: fixed; inset: 0; z-index: 99999;
+    background: #08080f;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 28px;
+    transition: opacity .4s ease;
+    pointer-events: all;
+  }
+  #splash-overlay.hiding { opacity: 0; pointer-events: none; }
+
+  .splash-logo-wrap { display: flex; align-items: center; gap: 14px; }
+  .splash-icon {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: linear-gradient(135deg, #30c5bb, #1a8f87);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 32px rgba(48,197,187,.35);
+    flex-shrink: 0;
+  }
+  .splash-icon svg { width: 32px; height: 32px; fill: #fff; }
+  .splash-name {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 32px; letter-spacing: .12em; color: #f0f0f8;
+  }
+  .splash-name span { color: #30c5bb; }
+
+  .splash-bar-wrap {
+    width: 200px; height: 3px;
+    background: rgba(255,255,255,.08); border-radius: 999px; overflow: hidden;
+  }
+  .splash-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #30c5bb, #1a8f87);
+    border-radius: 999px;
+    animation: splashLoad 1.8s cubic-bezier(.4,0,.2,1) forwards;
+  }
+  @keyframes splashLoad {
+    0%  { width: 0%; }
+    40% { width: 55%; }
+    75% { width: 82%; }
+    90% { width: 92%; }
+    100%{ width: 100%; }
+  }
+  .splash-status {
+    font-size: 12px; color: rgba(240,240,248,.35);
+    letter-spacing: .05em; font-family: sans-serif;
+  }
+</style>
+
+<!-- Splash Overlay – wird nach init() ausgeblendet -->
+<div id="splash-overlay">
+  <div class="splash-logo-wrap">
+    <div class="splash-icon">
+      <svg viewBox="0 0 24 24"><path d="M21 3H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5l-1 2H6v1h12v-1h-1l-1-2h5a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm-1 13H4V5h16Z"/></svg>
+    </div>
+    <div class="splash-name">OMNI<span>HUB</span></div>
+  </div>
+  <div class="splash-bar-wrap"><div class="splash-bar"></div></div>
+  <div class="splash-status" id="splash-status">Starte…</div>
+</div>
+
 <canvas id="particles-canvas"></canvas>
 
 <!-- TITLEBAR -->
@@ -725,28 +788,64 @@
 <style id="custom-css-style">  body { padding-top: 36px; }
   </style>
 
-<!-- Splash-Screen beenden nach init() -->
+
 <script>
-// Warte auf init() und rufe dann splash_done() auf
-(function waitForInit() {
-  const _origInit = window.init;
-  if (typeof _origInit !== 'function') {
-    setTimeout(waitForInit, 100);
-    return;
-  }
-  window.init = async function() {
-    try { await _origInit(); } catch(e) { console.error('[OmniHub] init Fehler:', e); }
-    // Splash beenden – nur wenn wir NICHT bereits auf index.html sind
-    // (splash.html → index.html Navigation macht Tauri)
-    try {
-      if (window.__TAURI_INTERNALS__) {
-        const { invoke } = await import('@tauri-apps/api/core');
-        await invoke('splash_done');
-      }
-    } catch { /* Kein Splash aktiv oder Dev-Mode */ }
-  };
+// Splash-Status-Meldungen
+(function() {
+  var msgs = ['Lade Einstellungen…', 'Initialisiere Profile…', 'Verbinde mit TMDB…', 'Fast fertig…'];
+  var i = 0;
+  var el = document.getElementById('splash-status');
+  var t = setInterval(function() {
+    if (!el) { clearInterval(t); return; }
+    if (i < msgs.length) { el.textContent = msgs[i++]; }
+    else clearInterval(t);
+  }, 420);
 })();
 </script>
+
+
+<!-- Splash ausblenden + Fenster zeigen nach init() -->
+<script>
+(function() {
+  var _origInit = null;
+  // Warte bis init() definiert ist
+  var _waitTimer = setInterval(function() {
+    if (typeof window.init !== 'function') return;
+    clearInterval(_waitTimer);
+
+    var _origFn = window.init;
+    window.init = async function() {
+      try {
+        await _origFn.apply(this, arguments);
+      } catch(e) {
+        console.error('[OmniHub] init Fehler:', e);
+      }
+      // Splash ausblenden
+      var overlay = document.getElementById('splash-overlay');
+      if (overlay) {
+        overlay.classList.add('hiding');
+        setTimeout(function() {
+          overlay.remove();
+          var style = document.getElementById('splash-style');
+          if (style) style.remove();
+        }, 450);
+      }
+      // Fenster anzeigen (war visible:false)
+      try {
+        var tauri = window.__TAURI_INTERNALS__;
+        if (tauri) {
+          // Tauri v2: getCurrentWindow().show()
+          var { getCurrentWindow } = await import('@tauri-apps/api/window');
+          await getCurrentWindow().show();
+        }
+      } catch(e) {
+        console.warn('[OmniHub] Fenster-Show fehlgeschlagen:', e);
+      }
+    };
+  }, 50);
+})();
+</script>
+
 <!-- Error-Handler für Debugging -->
 <script>
 window.onerror = function(msg, src, line, col, err) {
