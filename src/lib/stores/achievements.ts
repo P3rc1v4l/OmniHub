@@ -4,7 +4,7 @@
 import { writable, derived, get } from 'svelte/store';
 import { browser } from '$app/environment';
 import { loadState, saveState } from '$lib/persistence';
-import { providers } from './providers';
+import { favorites } from './providers';
 import { watchlist } from './watchlist';
 import { totalWatchMs, openCount, distinctProvidersWatched } from './tracking';
 
@@ -20,9 +20,9 @@ export interface Achievement {
 }
 
 export const achievements = derived(
-	[providers, watchlist, totalWatchMs, openCount, distinctProvidersWatched],
-	([$p, $wl, $total, $opens, $distinct]) => {
-		const favs = $p.filter((x) => x.favorite).length;
+	[favorites, watchlist, totalWatchMs, openCount, distinctProvidersWatched],
+	([$fav, $wl, $total, $opens, $distinct]) => {
+		const favs = $fav.length;
 		const hours = $total / 3_600_000;
 		const defs = [
 			{ id: 'first-open',   name: 'Erstes Mal',    desc: 'Ersten Anbieter geöffnet',          icon: '🎬', value: $opens,    goal: 1 },
@@ -47,22 +47,23 @@ export const unlockedCount = derived(achievements, ($a) => $a.filter((x) => x.un
 
 // --- Freischalt-Benachrichtigungen (nur einmal je Achievement) ---
 export const celebrated = writable<string[]>([]);
-let celebLoaded = false;
+let pid: string | null = null;
+let celebReady = false;
 
-export async function hydrateAchievements(currentlyUnlockedIds: string[]): Promise<void> {
-	if (celebLoaded || !browser) return;
-	celebLoaded = true;
-	let saved = await loadState<string[] | null>('celebratedAchievements', null);
+export async function loadCelebratedForProfile(profileId: string, currentlyUnlockedIds: string[]): Promise<void> {
+	pid = profileId;
+	let saved = await loadState<string[] | null>(`celebrated:${profileId}`, null);
 	if (saved == null) {
-		// Erster Lauf: bereits erfüllte Achievements als "gesehen" markieren,
-		// damit beim ersten Öffnen keine Flut an Meldungen kommt.
+		// Erstes Laden dieses Profils: bereits erfüllte Achievements als "gesehen"
+		// markieren, damit beim Wechsel keine Meldungsflut kommt.
 		saved = currentlyUnlockedIds;
 	}
 	celebrated.set(saved);
+	celebReady = true;
 }
 
 export async function maybeNotify(list: Achievement[], enabled: boolean): Promise<void> {
-	if (!celebLoaded || !browser || !enabled) return;
+	if (!celebReady || !browser || !enabled) return;
 	const seen = get(celebrated);
 	const newly = list.filter((a) => a.unlocked && !seen.includes(a.id));
 	if (newly.length === 0) return;
@@ -83,5 +84,5 @@ export async function maybeNotify(list: Achievement[], enabled: boolean): Promis
 }
 
 if (browser) {
-	celebrated.subscribe(($c) => { if (celebLoaded) void saveState('celebratedAchievements', $c); });
+	celebrated.subscribe(($c) => { if (celebReady && pid) void saveState(`celebrated:${pid}`, $c); });
 }

@@ -1,13 +1,17 @@
 <script lang="ts">
 	import { settings } from '$lib/stores/settings';
 	import { resetProviders } from '$lib/stores/providers';
+	import {
+		profiles, activeProfileId, addProfile, renameProfile, deleteProfile,
+		setPin, clearPin, MAX_PROFILES, MIN_PROFILES
+	} from '$lib/stores/profiles';
 	import { APP_VERSION, LINKS } from '$lib/version';
 
-	let { open = false, close }: { open?: boolean; close: () => void } = $props();
+	let { open = false, initialTab = 'appearance', close }: { open?: boolean; initialTab?: string; close: () => void } = $props();
 
 	const tabs = [
 		{ id: 'appearance', label: 'Design', icon: '🎨' },
-		{ id: 'account', label: 'Account', icon: '🔑' },
+		{ id: 'account', label: 'Profile', icon: '🔑' },
 		{ id: 'clock', label: 'Uhr', icon: '🕐' },
 		{ id: 'notifications', label: 'Benachrichtigungen', icon: '🔔' },
 		{ id: 'plugins', label: 'Plugins', icon: '🧩' },
@@ -16,9 +20,22 @@
 	let active = $state('appearance');
 	let tabSearch = $state('');
 
+	// Profilverwaltung
+	let pinEditFor = $state<string | null>(null);
+	let pinInput = $state('');
+
+	// Beim Öffnen den gewünschten Tab aktivieren.
+	$effect(() => { if (open) active = initialTab; });
+
 	const filteredTabs = $derived(
 		tabs.filter((t) => t.label.toLowerCase().includes(tabSearch.toLowerCase()))
 	);
+
+	async function savePin(id: string) {
+		if (pinInput.trim().length < 4) return;
+		await setPin(id, pinInput.trim());
+		pinEditFor = null; pinInput = '';
+	}
 
 	function onBackdrop(e: MouseEvent) { if (e.target === e.currentTarget) close(); }
 </script>
@@ -149,7 +166,33 @@
 							<a class="ghost link" href={LINKS.discord} target="_blank" rel="noreferrer">Discord – Feedback & Support</a>
 							<a class="ghost link" href={LINKS.githubReleases} target="_blank" rel="noreferrer">Nach Updates suchen (GitHub Releases)</a>
 						</div>
-						<p class="hint">VPN, Watchlist-Import/Export und WideVine-Status folgen in v0.3.</p>
+						<p class="hint">VPN, Watchlist-Import/Export und WideVine-Status folgen in einer späteren Version.</p>
+					{:else if active === 'account'}
+						<p class="acc-intro">Jedes Profil hat eigene Favoriten, Watchlist, Streamzeit und – beim Streamen – getrennte Logins.</p>
+						<div class="plist">
+							{#each $profiles as p (p.id)}
+								<div class="prow">
+									<span class="pav">👤</span>
+									<input class="pname-in" value={p.name} oninput={(e) => renameProfile(p.id, (e.currentTarget as HTMLInputElement).value)} />
+									{#if p.id === $activeProfileId}<span class="pbadge">aktiv</span>{/if}
+
+									{#if pinEditFor === p.id}
+										<input class="pin-in" type="password" inputmode="numeric" placeholder="neue PIN (min. 4)" bind:value={pinInput} onkeydown={(e) => e.key === 'Enter' && savePin(p.id)} />
+										<button class="mini primary" onclick={() => savePin(p.id)}>OK</button>
+										<button class="mini" onclick={() => { pinEditFor = null; pinInput = ''; }}>✕</button>
+									{:else}
+										<button class="mini" onclick={() => { pinEditFor = p.id; pinInput = ''; }}>{p.pinHash ? 'PIN ändern' : 'PIN setzen'}</button>
+										{#if p.pinHash}<button class="mini" onclick={() => clearPin(p.id)}>PIN entfernen</button>{/if}
+									{/if}
+
+									<button class="mini danger" disabled={$profiles.length <= MIN_PROFILES} onclick={() => deleteProfile(p.id)} title={$profiles.length <= MIN_PROFILES ? 'Mindestens ein Profil nötig' : 'Profil löschen'}>🗑</button>
+								</div>
+							{/each}
+						</div>
+						<button class="ghost" disabled={$profiles.length >= MAX_PROFILES} onclick={() => addProfile(`Profil ${$profiles.length + 1}`)}>
+							＋ Profil hinzufügen {#if $profiles.length >= MAX_PROFILES}(max. {MAX_PROFILES}){/if}
+						</button>
+						<p class="hint">Profil wechseln kannst du unten links über den Profil-Button.</p>
 					{:else}
 						<p class="hint">Dieser Tab wird in einer kommenden Version ausgebaut.</p>
 					{/if}
@@ -220,4 +263,18 @@
 	.ghost:hover { border-color: var(--border-strong); }
 	.ghost.link { color: var(--accent); }
 	.hint { color: var(--text-muted); font-size: 13px; }
+
+	/* Profile-Tab */
+	.acc-intro { color: var(--text-muted); font-size: 13px; margin: 0 0 14px; }
+	.plist { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+	.prow { display: flex; align-items: center; gap: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 8px 10px; flex-wrap: wrap; }
+	.pav { width: 26px; height: 26px; border-radius: 50%; background: var(--bg-card-2); display: grid; place-items: center; font-size: 13px; flex-shrink: 0; }
+	.pname-in { flex: 1; min-width: 120px; background: var(--bg-elev); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 7px 10px; font-size: 13.5px; font-family: inherit; }
+	.pbadge { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 3px 8px; border-radius: 999px; }
+	.pin-in { width: 150px; background: var(--bg-elev); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 7px 10px; font-size: 13px; letter-spacing: 3px; font-family: inherit; }
+	.mini { background: var(--bg-elev); border: 1px solid var(--border); color: var(--text-muted); padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 12.5px; font-family: inherit; }
+	.mini:hover { color: var(--text); border-color: var(--border-strong); }
+	.mini.primary { background: var(--accent); color: var(--accent-text); border: 0; font-weight: 700; }
+	.mini.danger:hover { color: #f87171; border-color: #f87171; }
+	.mini:disabled { opacity: 0.4; cursor: not-allowed; }
 </style>

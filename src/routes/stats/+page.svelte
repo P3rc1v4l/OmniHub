@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { providers } from '$lib/stores/providers';
 	import { watchlist } from '$lib/stores/watchlist';
 	import { watchTime, totalWatchMs, openCount, distinctProvidersWatched, formatDuration } from '$lib/stores/tracking';
 	import { achievements, unlockedCount } from '$lib/stores/achievements';
+	import { providers, favorites } from '$lib/stores/providers';
 	import Logo from '$lib/components/Logo.svelte';
 
-	const favCount = $derived($providers.filter((p) => p.favorite).length);
+	const favCount = $derived($favorites.length);
 
 	// Top-Anbieter nach Streamzeit
 	const topProviders = $derived.by(() => {

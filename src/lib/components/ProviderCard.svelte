@@ -1,11 +1,13 @@
 <script lang="ts">
 	import type { Provider } from '$lib/types';
 	import Logo from './Logo.svelte';
-	import { toggleFavorite, markOpened, activeStream } from '$lib/stores/providers';
+	import { toggleFavorite, markOpened, activeStream, favorites } from '$lib/stores/providers';
 	import { openInWindow } from '$lib/streamWindow';
 
 	export let provider: Provider;
 	export let size: 'large' | 'compact' = 'large';
+
+	$: fav = $favorites.includes(provider.id);
 
 	function open() {
 		markOpened(provider.id);
@@ -46,12 +48,12 @@
 
 	<button
 		class="bookmark"
-		class:active={provider.favorite}
+		class:active={fav}
 		onclick={favClick}
-		aria-label={provider.favorite ? 'Aus Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
-		title={provider.favorite ? 'Favorit' : 'Zu Favoriten'}
+		aria-label={fav ? 'Aus Favoriten entfernen' : 'Zu Favoriten hinzufügen'}
+		title={fav ? 'Favorit' : 'Zu Favoriten'}
 	>
-		{#if provider.favorite}
+		{#if fav}
 			<svg viewBox="0 0 16 16" width="16" height="16" fill="#facc15"><path d="M4 2h8v12l-4-2.5L4 14z"/></svg>
 		{:else}
 			<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 2h8v12l-4-2.5L4 14z"/></svg>

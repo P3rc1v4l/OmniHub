@@ -29,13 +29,14 @@ export function isInWatchlist(items: WatchlistItem[], tmdbId: number, mediaType:
 	return items.some((x) => x.tmdbId === tmdbId && x.mediaType === mediaType);
 }
 
-let loaded = false;
-export async function hydrateWatchlist(): Promise<void> {
-	if (loaded || !browser) return;
-	loaded = true;
-	watchlist.set(await loadState<WatchlistItem[]>('watchlist', []));
+let pid: string | null = null;
+let ready = false;
+export async function loadWatchlistForProfile(profileId: string): Promise<void> {
+	pid = profileId;
+	watchlist.set(await loadState<WatchlistItem[]>(`watchlist:${profileId}`, []));
+	ready = true;
 }
 
 if (browser) {
-	watchlist.subscribe(($w) => { if (loaded) void saveState('watchlist', $w); });
+	watchlist.subscribe(($w) => { if (ready && pid) void saveState(`watchlist:${pid}`, $w); });
 }

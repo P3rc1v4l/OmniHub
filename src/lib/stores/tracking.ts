@@ -71,15 +71,23 @@ export function formatDuration(ms: number): string {
 	return `${Math.floor(ms / 1000)} s`;
 }
 
-let loaded = false;
-export async function hydrateTracking(): Promise<void> {
-	if (loaded || !browser) return;
-	loaded = true;
-	watchTime.set(await loadState<Record<string, number>>('watchTime', {}));
-	openCount.set(await loadState<number>('openCount', 0));
+// Beendet/verbucht alle laufenden Sessions (z.B. vor einem Profilwechsel).
+export function resetSessions(): void {
+	for (const id of Object.keys(openSessions)) flush(id);
+	openSessions = {};
+	if (heartbeat) { clearInterval(heartbeat); heartbeat = null; }
+}
+
+let pid: string | null = null;
+let ready = false;
+export async function loadTrackingForProfile(profileId: string): Promise<void> {
+	pid = profileId;
+	watchTime.set(await loadState<Record<string, number>>(`watchTime:${profileId}`, {}));
+	openCount.set(await loadState<number>(`openCount:${profileId}`, 0));
+	ready = true;
 }
 
 if (browser) {
-	watchTime.subscribe(($w) => { if (loaded) void saveState('watchTime', $w); });
-	openCount.subscribe(($n) => { if (loaded) void saveState('openCount', $n); });
+	watchTime.subscribe(($w) => { if (ready && pid) void saveState(`watchTime:${pid}`, $w); });
+	openCount.subscribe(($n) => { if (ready && pid) void saveState(`openCount:${pid}`, $n); });
 }

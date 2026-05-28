@@ -7,30 +7,34 @@
 	import ShortcutsModal from '$lib/components/ShortcutsModal.svelte';
 	import OnboardingModal from '$lib/components/OnboardingModal.svelte';
 	import { settings, hydrateSettings, applySettings } from '$lib/stores/settings';
-	import { hydrateProviders } from '$lib/stores/providers';
-	import { hydrateProfiles } from '$lib/stores/profiles';
-	import { hydrateWatchlist } from '$lib/stores/watchlist';
-	import { hydrateTracking } from '$lib/stores/tracking';
-	import { achievements, hydrateAchievements, maybeNotify } from '$lib/stores/achievements';
+	import { hydrateCatalog } from '$lib/stores/providers';
+	import { hydrateProfiles, loadProfileData, activeProfileId } from '$lib/stores/profiles';
+	import { achievements, maybeNotify } from '$lib/stores/achievements';
 	import { get } from 'svelte/store';
 
 	let { children } = $props();
 
 	let showSettings = $state(false);
+	let settingsTab = $state('appearance');
 	let showShortcuts = $state(false);
 	let showOnboarding = $state(false);
 
+	function openSettings(tab = 'appearance') {
+		settingsTab = tab;
+		showSettings = true;
+	}
+
 	onMount(async () => {
-		// Reihenfolge: erst Settings (Design sofort anwenden), dann Rest.
+		// Reihenfolge: Settings -> Profile (kennt aktives Profil) -> Katalog ->
+		// profilbezogene Daten (Favoriten, Watchlist, Streamzeit, Achievements).
 		await hydrateSettings();
 		applySettings(get(settings));
-		await Promise.all([hydrateProviders(), hydrateProfiles(), hydrateWatchlist(), hydrateTracking()]);
-		// Achievements: aktuell erfüllte als "gesehen" baseline setzen (kein Spam beim Start).
-		await hydrateAchievements(get(achievements).filter((a) => a.unlocked).map((a) => a.id));
-		// Onboarding nach dem Laden, damit wir wissen, ob es nötig ist.
-		if (!get(settings).onboardingDone) showOnboarding = true;
+		await hydrateProfiles();
+		await hydrateCatalog();
+		const pid = get(activeProfileId);
+		if (pid) await loadProfileData(pid);
 
-		// Globale Tastenkürzel
+		if (!get(settings).onboardingDone) showOnboarding = true;
 		window.addEventListener('keydown', onKey);
 	});
 
@@ -41,15 +45,11 @@
 	});
 
 	function onKey(e: KeyboardEvent) {
-		// Wenn in einem Eingabefeld -> nichts machen, außer Esc
 		const inField = (e.target as HTMLElement)?.matches?.('input,textarea,select');
-		if (e.key === 'Escape') {
-			showSettings = false; showShortcuts = false;
-			return;
-		}
+		if (e.key === 'Escape') { showSettings = false; showShortcuts = false; return; }
 		if (inField) return;
 		if (e.key === 'F1') { e.preventDefault(); showShortcuts = true; }
-		else if (e.key === ',' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); showSettings = true; }
+		else if (e.key === ',' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); openSettings(); }
 		else if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
 			e.preventDefault();
 			document.querySelector<HTMLInputElement>('input[data-omni-search]')?.focus();
@@ -63,12 +63,12 @@
 <div class="root">
 	<Titlebar onHelp={() => (showShortcuts = true)} />
 	<div class="below">
-		<Sidebar openSettings={() => (showSettings = true)} />
+		<Sidebar openSettings={() => openSettings()} openProfiles={() => openSettings('account')} />
 		<main>{@render children()}</main>
 	</div>
 </div>
 
-<SettingsModal open={showSettings} close={() => (showSettings = false)} />
+<SettingsModal open={showSettings} initialTab={settingsTab} close={() => (showSettings = false)} />
 <ShortcutsModal open={showShortcuts} close={() => (showShortcuts = false)} />
 <OnboardingModal open={showOnboarding} close={() => (showOnboarding = false)} />
 

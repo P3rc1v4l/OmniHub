@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { activeStream } from '$lib/stores/providers';
-	import { profiles, activeProfileId } from '$lib/stores/profiles';
 	import { settings } from '$lib/stores/settings';
+	import ProfileSwitcher from './ProfileSwitcher.svelte';
 
 	export let openSettings: () => void;
+	export let openProfiles: () => void;
 
 	const nav = [
 		{ href: '/', label: 'Übersicht', icon: '🏠' },
@@ -14,7 +15,6 @@
 	];
 
 	$: path = $page.url.pathname;
-	$: activeProfile = $profiles.find((p) => p.id === $activeProfileId) ?? $profiles[0];
 
 	function toggleTheme() {
 		settings.update(($s) => ({
@@ -50,11 +50,7 @@
 			<button class="ctrl" title="Benachrichtigungen" aria-label="Benachrichtigungen">🔔</button>
 		</div>
 
-		<button class="profile">
-			<span class="avatar">👤</span>
-			<span class="pname">{activeProfile?.name ?? 'User'}</span>
-			<span class="chev">▾</span>
-		</button>
+		<ProfileSwitcher {openProfiles} />
 
 		<a href="/stats" class="nav-item" class:active={path === '/stats'}>
 			<span class="icon">📊</span><span>Statistiken</span>
@@ -95,14 +91,4 @@
 		padding: 7px 8px; cursor: pointer; font-size: 14px;
 	}
 	.ctrl:hover { color: var(--text); border-color: var(--border-strong); }
-	.profile {
-		display: flex; align-items: center; gap: 10px;
-		background: var(--bg-card); border: 1px solid var(--border);
-		padding: 8px 10px; border-radius: 10px;
-		cursor: pointer; margin: 6px 0;
-		color: var(--text); font-family: inherit;
-	}
-	.avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-size: 13px; }
-	.pname { flex: 1; text-align: left; font-size: 13px; font-weight: 600; }
-	.chev { color: var(--text-muted); font-size: 10px; }
 </style>

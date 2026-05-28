@@ -4,6 +4,27 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.4.0] – 2026-05-29
+
+Profiltrennung & getrennte Streaming-Logins.
+
+### Hinzugefügt
+- **Profile vollständig getrennt.** Jedes Profil hat eigene **Favoriten, Watchlist, „zuletzt geöffnet", Streamzeit und Achievements**. Beim Profilwechsel wird alles neu geladen.
+- **Getrennte Logins beim Streamen.** Anbieter-Fenster nutzen pro Profil ein eigenes `dataDirectory` (Windows/WebView2) – Cookies und Anmeldungen sind dadurch je Profil getrennt und bleiben erhalten. Beim Wechsel werden die Fenster des vorherigen Profils geschlossen.
+- **Profil-Wechsler** unten links in der Sidebar: Profil per Klick wechseln, **PIN-Abfrage** bei geschützten Profilen, Schnell-Hinzufügen.
+- **Profilverwaltung** unter Einstellungen → Profile: anlegen (max. 5), umbenennen, löschen, **PIN setzen/ändern/entfernen** (SHA-256-Hash).
+
+### Geändert
+- **Favoriten** sind kein Anbieter-Flag mehr, sondern ein eigener, profilbezogener Datensatz.
+- **Statistik** ist damit automatisch pro Profil.
+- Mindestversion `@tauri-apps/api` auf 2.9.0 angehoben (für `dataDirectory`).
+
+### Hinweise
+- Streamzeit/Logins sind jetzt je Profil getrennt; die Anbieter-Liste (Katalog) und das App-Design bleiben global.
+- Echte Marken-Logos, Karteneditor und CR-Kalender stehen weiterhin auf der Roadmap.
+
+---
+
 ## [0.3.0] – 2026-05-29
 
 Streamzeit-Tracking & Achievements.
