@@ -1,5 +1,15 @@
 # OmniHub – Changelog
 
+## v0.3.1 – 2026-05-28
+
+### Bugfix: tauri.conf.json – NSIS-Config-Fehler
+- **Ursache**: In Tauri v2 gehört `nsis` unter `bundle.windows.nsis`, nicht direkt unter `bundle`
+- **Fehlermeldung**: `Additional properties are not allowed ('nsis' was unexpected)`
+- **Fix**: `nsis`-Block von `bundle.nsis` → `bundle.windows.nsis` verschoben
+- **Bonus**: `certificateThumbprint: null` entfernt (kann Schema-Fehler auslösen)
+
+---
+
 ## v0.3.0 – 2026-05-28
 
 ### Bugfix: GitHub Actions Build-Fehler

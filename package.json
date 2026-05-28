@@ -1,6 +1,6 @@
 {
   "name": "omnihub",
-  "version": "0.2.0",
+  "version": "0.3.1",
   "description": "OmniHub – Streaming-Hub auf Tauri-Basis (WideVine via Edge WebView eingebaut)",
   "scripts": {
     "dev":   "tauri dev",
