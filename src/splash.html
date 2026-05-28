@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <title>OmniHub</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --acc: #30c5bb; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #08080f;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .splash {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 28px;
+      animation: fadeIn .4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Logo + Name */
+    .logo-wrap { display: flex; align-items: center; gap: 14px; }
+    .logo-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #30c5bb 0%, #1a8f87 100%);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 8px 32px rgba(48,197,187,.35);
+    }
+    .logo-icon svg { width: 32px; height: 32px; fill: #fff; }
+    .logo-text {
+      font-size: 32px; font-weight: 800;
+      letter-spacing: .12em; color: #f0f0f8;
+    }
+    .logo-text span { color: var(--acc); }
+
+    /* Loading-Bar */
+    .bar-wrap {
+      width: 200px; height: 3px;
+      background: rgba(255,255,255,.08);
+      border-radius: 999px; overflow: hidden;
+    }
+    .bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--acc), #1a8f87);
+      border-radius: 999px;
+      animation: load 1.6s cubic-bezier(.4,0,.2,1) forwards;
+    }
+    @keyframes load {
+      0%   { width: 0%; }
+      40%  { width: 55%; }
+      70%  { width: 78%; }
+      90%  { width: 92%; }
+      100% { width: 100%; }
+    }
+
+    .status {
+      font-size: 12px;
+      color: rgba(240,240,248,.35);
+      letter-spacing: .05em;
+    }
+  </style>
+</head>
+<body>
+  <div class="splash">
+    <div class="logo-wrap">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 3H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5l-1 2H6v1h12v-1h-1l-1-2h5a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Zm-1 13H4V5h16Z"/></svg>
+      </div>
+      <div class="logo-text">OMNI<span>HUB</span></div>
+    </div>
+
+    <div class="bar-wrap"><div class="bar"></div></div>
+
+    <div class="status" id="status">Starte…</div>
+  </div>
+
+  <script>
+    const messages = ['Lade Einstellungen…', 'Initialisiere Profile…', 'Verbinde mit TMDB…', 'Fast fertig…'];
+    let i = 0;
+    const el = document.getElementById('status');
+    const timer = setInterval(() => {
+      if (i < messages.length) { el.textContent = messages[i++]; }
+      else clearInterval(timer);
+    }, 380);
+  </script>
+</body>
+</html>

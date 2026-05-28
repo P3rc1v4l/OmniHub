@@ -1,21 +1,14 @@
 // ═══════════════════════════════════════════════════════════════════
-// OmniHub – Tauri API Bridge  v0.2.0
-// Ersetzt Electron's preload.js / contextBridge
+// OmniHub – Tauri API Bridge  v0.3.0
+// Session-Isolation + Splash-Done + alle v0.2.0 Methoden
 // ═══════════════════════════════════════════════════════════════════
 
-import { invoke }       from '@tauri-apps/api/core';
-import { emit, listen } from '@tauri-apps/api/event';
-import { getCurrentWindow } from '@tauri-apps/api/window';
+import { invoke }              from '@tauri-apps/api/core';
+import { emit, listen }        from '@tauri-apps/api/event';
+import { getCurrentWindow }    from '@tauri-apps/api/window';
 
 const appWindow = getCurrentWindow();
 
-// ── Hilfsfunktionen ─────────────────────────────────────────────────
-function noop()    { return Promise.resolve(); }
-function noopObj() { return Promise.resolve({}); }
-function noopArr() { return Promise.resolve([]); }
-function noopBool(v = false) { return () => Promise.resolve(v); }
-
-// ── Globale API ──────────────────────────────────────────────────────
 window.electronAPI = {
 
   // ── Settings ──────────────────────────────────────────────────────
@@ -54,13 +47,10 @@ window.electronAPI = {
     try {
       const { isPermissionGranted, requestPermission, sendNotification } =
         await import('@tauri-apps/plugin-notification');
-      let granted = await isPermissionGranted();
-      if (!granted) {
-        const perm = await requestPermission();
-        granted = perm === 'granted';
-      }
-      if (granted) sendNotification({ title, body });
-    } catch { /* Stille Fehler – Benachrichtigungen optional */ }
+      let ok = await isPermissionGranted();
+      if (!ok) { const p = await requestPermission(); ok = p === 'granted'; }
+      if (ok) sendNotification({ title, body });
+    } catch { /* optional */ }
   },
 
   // ── TMDB ──────────────────────────────────────────────────────────
@@ -79,66 +69,65 @@ window.electronAPI = {
   getSystemTheme:         ()          => invoke('get_system_theme'),
   pickImage:              ()          => invoke('pick_image'),
 
-  // ── Window-Steuerung (Tauri v2) ───────────────────────────────────
+  // ── Window ────────────────────────────────────────────────────────
   minimize:               ()          => appWindow.minimize(),
   maximize:               ()          => appWindow.toggleMaximize(),
   close:                  ()          => appWindow.close(),
 
   setFullscreen: async (on) => {
-    try {
-      await appWindow.setFullscreen(on);
-      await emit('fullscreen-changed', on);
-    } catch (e) {
-      console.warn('[OmniHub] setFullscreen:', e);
-    }
+    try { await appWindow.setFullscreen(on); await emit('fullscreen-changed', on); }
+    catch (e) { console.warn('[OmniHub] setFullscreen:', e); }
   },
   isFullscreen: async () => {
-    try { return await appWindow.isFullscreen(); }
-    catch { return false; }
+    try { return await appWindow.isFullscreen(); } catch { return false; }
   },
 
-  // Zweites Fenster öffnen (Stub – für spätere Implementierung)
   openSecondWindow: async (opts) => {
     try {
       const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow');
-      const label = 'secondary_' + Date.now();
-      new WebviewWindow(label, {
-        url:       opts.url || 'about:blank',
-        title:     opts.title || 'OmniHub – Stream',
-        width:     1280,
-        height:    800,
-        center:    true,
-        decorations: true,
+      new WebviewWindow('secondary_' + Date.now(), {
+        url: opts.url || 'about:blank',
+        title: opts.title || 'OmniHub',
+        width: 1280, height: 800, center: true, decorations: true,
       });
-    } catch (e) {
-      console.warn('[OmniHub] openSecondWindow:', e);
-    }
+    } catch (e) { console.warn('[OmniHub] openSecondWindow:', e); }
   },
 
-  // ── Events (Tauri Event-System) ───────────────────────────────────
-  onUpdateAvailable:      (cb) => listen('update-available',      e => cb(e.payload)),
-  onUpdateNotAvailable:   (cb) => listen('update-not-available',  () => cb()),
-  onUpdateDownloaded:     (cb) => listen('update-downloaded',     () => cb()),
-  onUpdateDownloadProgress:(cb)=> listen('update-download-progress', e => cb(e.payload)),
-  onUpdateError:          (cb) => listen('update-error',          e => cb(e.payload)),
-  onSystemThemeChanged:   (cb) => listen('system-theme-changed',  e => cb(e.payload)),
-  onSessionsUpdated:      (cb) => listen('sessions-updated',      e => cb(e.payload)),
-  onFullscreenChange:     (cb) => listen('fullscreen-changed',    e => cb(e.payload)),
-  onCrashLogFound:        (cb) => listen('crash-log-found',       e => cb(e.payload)),
+  // ── Splash ────────────────────────────────────────────────────────
+  splashDone: () => invoke('splash_done'),
+
+  // ── Session-Isolation (v0.3.0 – echter Rust-Backend) ─────────────
+  getPartitionName:   (pid, provId)      => invoke('get_partition_name',    { profileId: pid, providerId: provId }),
+  setSessionActive:   (pid, provId, on)  => invoke('set_session_active',    { profileId: pid, providerId: provId, active: on }),
+  getActiveSessions:  (pid)              => invoke('get_active_sessions',   { profileId: pid }),
+  clearProviderSession:(pid, provId)     => invoke('clear_provider_session', { profileId: pid, providerId: provId }),
+  clearAllSessions:   (pid)              => invoke('clear_all_sessions',    { profileId: pid }),
+  // Stubs für Kompatibilität
+  refreshSessionsNow:     (pid)          => Promise.resolve(),
+  setupWebviewSession:    (partition)    => Promise.resolve(),
+  getAllSessions:          (pid)         => window.electronAPI.getActiveSessions(pid),
+  clearProvidersSessions: (pid, ids)    => Promise.all((ids||[]).map(id =>
+                                            window.electronAPI.clearProviderSession(pid, id))),
+
+  // ── Events ────────────────────────────────────────────────────────
+  onUpdateAvailable:      (cb) => listen('update-available',           e => cb(e.payload)),
+  onUpdateNotAvailable:   (cb) => listen('update-not-available',       () => cb()),
+  onUpdateDownloaded:     (cb) => listen('update-downloaded',          () => cb()),
+  onUpdateDownloadProgress:(cb)=> listen('update-download-progress',   e => cb(e.payload)),
+  onUpdateError:          (cb) => listen('update-error',               e => cb(e.payload)),
+  onSystemThemeChanged:   (cb) => listen('system-theme-changed',       e => cb(e.payload)),
+  onSessionsUpdated:      (cb) => listen('sessions-updated',           e => cb(e.payload)),
+  onFullscreenChange:     (cb) => listen('fullscreen-changed',         e => cb(e.payload)),
+  onCrashLogFound:        (cb) => listen('crash-log-found',            e => cb(e.payload)),
 
   // ── Updater ───────────────────────────────────────────────────────
   checkForUpdates: async () => {
     try {
       const { check } = await import('@tauri-apps/plugin-updater');
       const update = await check();
-      if (update) {
-        await emit('update-available', { version: update.version });
-      } else {
-        await emit('update-not-available', null);
-      }
-    } catch (e) {
-      await emit('update-error', e?.message || String(e));
-    }
+      if (update) await emit('update-available', { version: update.version });
+      else await emit('update-not-available', null);
+    } catch (e) { await emit('update-error', String(e)); }
   },
 
   downloadUpdate: async () => {
@@ -146,81 +135,34 @@ window.electronAPI = {
       const { check } = await import('@tauri-apps/plugin-updater');
       const update = await check();
       if (!update) return;
-      let downloaded = 0;
-      let total = 0;
-      await update.downloadAndInstall(event => {
-        switch (event.event) {
-          case 'Started':
-            total = event.data?.contentLength || 0;
-            break;
-          case 'Progress':
-            downloaded += event.data?.chunkLength || 0;
-            if (total > 0) {
-              const pct = Math.round((downloaded / total) * 100);
-              emit('update-download-progress', pct);
-            }
-            break;
-          case 'Finished':
-            emit('update-downloaded', null);
-            break;
-        }
+      let downloaded = 0, total = 0;
+      await update.downloadAndInstall(ev => {
+        if (ev.event === 'Started')   { total = ev.data?.contentLength || 0; }
+        if (ev.event === 'Progress')  { downloaded += ev.data?.chunkLength || 0; if (total > 0) emit('update-download-progress', Math.round(downloaded/total*100)); }
+        if (ev.event === 'Finished')  { emit('update-downloaded', null); }
       });
-    } catch (e) {
-      await emit('update-error', e?.message || String(e));
-    }
+    } catch (e) { await emit('update-error', String(e)); }
   },
 
   installUpdate: async () => {
-    try {
-      const { relaunch } = await import('@tauri-apps/plugin-process');
-      await relaunch();
-    } catch { /* Stille Fehler */ }
+    try { const { relaunch } = await import('@tauri-apps/plugin-process'); await relaunch(); }
+    catch { /* silent */ }
   },
 
-  // ── Settings Export/Import (Stub) ─────────────────────────────────
-  exportSettings: async () => {
-    // Wird über Frontend-Download gelöst
-    return { ok: false, error: 'Verwende Einstellungen → Mehr → Watchlist Export' };
-  },
-  importSettings: async () => {
-    return { ok: false, error: 'Verwende Einstellungen → Mehr → Watchlist Import' };
-  },
-
-  // ── Google Auth (Stub – Webview übernimmt das) ───────────────────
-  openGoogleAuthBrowser: (pid) => {
-    console.log('[OmniHub] Google Auth – wird über Webview gehandhabt');
-    return Promise.resolve();
-  },
-
-  // ── Crash Log (Stub) ──────────────────────────────────────────────
-  clearCrashLog: noop,
-
-  // ── WideVine – Edge WebView hat es eingebaut! ─────────────────────
+  // ── WideVine (Edge WebView eingebaut) ─────────────────────────────
   getWidevineStatus: async () => ({
-    installed:     true,
-    dllExists:     true,
-    sigExists:     true,
-    manifestExists:true,
-    version:       'Edge WebView (eingebaut)',
-    cdmDir:        'Edge WebView – kein manueller Setup nötig',
-    isBuiltIn:     true,
+    installed: true, dllExists: true, sigExists: true, manifestExists: true,
+    version: 'Edge WebView (eingebaut)', cdmDir: 'Edge WebView – kein Setup nötig', isBuiltIn: true,
   }),
 
-  // ── Session Management (Stubs – WebView verwaltet Sessions) ───────
-  refreshSessionsNow:       (pid)         => Promise.resolve(),
-  setupWebviewSession:      (partition)   => Promise.resolve(),
-  getAllSessions:            (pid)         => Promise.resolve({}),
-  clearAllSessions:         (pid)         => Promise.resolve(),
-  clearProviderSession:     (pid, id)     => Promise.resolve(),
-  clearProvidersSessions:   (pid, ids)    => Promise.resolve(),
-
-  // ── AdBlock (Stub – kein separater Proxy-Prozess) ─────────────────
-  getExtraAdDomains:        ()            => Promise.resolve([]),
-  fetchAdblockList:         (url)         => Promise.resolve({ ok: false, domains: [] }),
-  applyExtraAdDomains:      (domains)     => Promise.resolve(),
-
-  // ── Weiteres ──────────────────────────────────────────────────────
-  setFullscreenMode:        (on)          => appWindow.setFullscreen(on),
+  // ── Stubs ─────────────────────────────────────────────────────────
+  exportSettings:         async () => ({ ok: false }),
+  importSettings:         async () => ({ ok: false }),
+  openGoogleAuthBrowser:  ()     => Promise.resolve(),
+  clearCrashLog:          ()     => Promise.resolve(),
+  getExtraAdDomains:      ()     => Promise.resolve([]),
+  fetchAdblockList:       ()     => Promise.resolve({ ok: false, domains: [] }),
+  applyExtraAdDomains:    ()     => Promise.resolve(),
 };
 
-console.log('[OmniHub] Tauri Bridge v0.2.0 geladen ✓ – WideVine via Edge WebView eingebaut');
+console.log('[OmniHub] Tauri Bridge v0.3.0 geladen ✓');

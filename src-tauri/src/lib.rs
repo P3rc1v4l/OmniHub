@@ -1,6 +1,5 @@
 // OmniHub – Tauri Library
-// ═══ v0.2.0 ═══
-// WideVine ist durch Edge WebView (Windows) bereits verfügbar
+// ═══ v0.3.0 – Splash Screen + Session-Isolation ═══
 
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_store::StoreExt;
@@ -12,7 +11,6 @@ pub fn run() {
     tracing_subscriber::fmt::init();
 
     tauri::Builder::default()
-        // Plugins
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_fs::init())
@@ -21,7 +19,6 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .plugin(tauri_plugin_dialog::init())
-        // Commands registrieren
         .invoke_handler(tauri::generate_handler![
             // Settings
             commands::settings::get_settings,
@@ -63,13 +60,20 @@ pub fn run() {
             commands::system::pick_image,
             commands::system::check_online,
             commands::system::get_system_theme,
+            // Splash
+            commands::splash::splash_done,
+            // Sessions
+            commands::sessions::get_partition_name,
+            commands::sessions::set_session_active,
+            commands::sessions::get_active_sessions,
+            commands::sessions::clear_provider_session,
+            commands::sessions::clear_all_sessions,
         ])
         .setup(|app| {
-            // Store initialisieren
             let _store = app.store("omnihub.json")
                 .expect("Store konnte nicht erstellt werden");
 
-            // System-Theme polling (Windows) – alle 2s
+            // System-Theme polling (Windows)
             #[cfg(target_os = "windows")]
             {
                 let app_handle = app.handle().clone();
@@ -87,7 +91,7 @@ pub fn run() {
                 });
             }
 
-            // Auto-Updater (nur Release-Build)
+            // Auto-Updater (nur Release)
             #[cfg(not(debug_assertions))]
             {
                 let handle = app.handle().clone();
@@ -101,12 +105,6 @@ pub fn run() {
                     }
                 });
             }
-
-            // App-Version in Frontend verfügbar machen
-            let version = app.package_info().version.to_string();
-            let _ = app.get_webview_window("main").map(|w| {
-                let _ = w.eval(&format!("window.__appVersion = '{}';", version));
-            });
 
             Ok(())
         })
@@ -126,11 +124,9 @@ fn is_dark_mode() -> bool {
         .args([
             "query",
             r"HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize",
-            "/v",
-            "AppsUseLightTheme",
+            "/v", "AppsUseLightTheme",
         ])
         .output()
         .unwrap_or_default();
-    let s = String::from_utf8_lossy(&output.stdout);
-    s.contains("0x0") // 0 = Dark Mode
+    String::from_utf8_lossy(&output.stdout).contains("0x0")
 }

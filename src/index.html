@@ -440,7 +440,7 @@
         <button class="sms-btn" data-stab="advanced">⚙ Mehr</button>
       </nav>
       <div style="flex:1"></div>
-      <div class="settings-version" style="font-size:10px;color:var(--tx3);text-align:center;padding:8px">v0.2.0</div>
+      <div class="settings-version" style="font-size:10px;color:var(--tx3);text-align:center;padding:8px">v0.3.0</div>
     </div>
     <div class="settings-modal-content">
       <button class="settings-modal-close" id="settings-close">✕</button>
@@ -724,6 +724,29 @@
 
 <style id="custom-css-style">  body { padding-top: 36px; }
   </style>
+
+<!-- Splash-Screen beenden nach init() -->
+<script>
+// Warte auf init() und rufe dann splash_done() auf
+(function waitForInit() {
+  const _origInit = window.init;
+  if (typeof _origInit !== 'function') {
+    setTimeout(waitForInit, 100);
+    return;
+  }
+  window.init = async function() {
+    try { await _origInit(); } catch(e) { console.error('[OmniHub] init Fehler:', e); }
+    // Splash beenden – nur wenn wir NICHT bereits auf index.html sind
+    // (splash.html → index.html Navigation macht Tauri)
+    try {
+      if (window.__TAURI_INTERNALS__) {
+        const { invoke } = await import('@tauri-apps/api/core');
+        await invoke('splash_done');
+      }
+    } catch { /* Kein Splash aktiv oder Dev-Mode */ }
+  };
+})();
+</script>
 <!-- Error-Handler für Debugging -->
 <script>
 window.onerror = function(msg, src, line, col, err) {
@@ -745,7 +768,17 @@ window.onerror = function(msg, src, line, col, err) {
 </script>
 <!-- Tauri Bridge: window.electronAPI kompatibel -->
 <script type="module" src="js/tauri-bridge.js"></script>
-<!-- OmniHub Bundle (von OmniHub übernommen) -->
-<script src="js/bundle.js"></script>
+<!-- OmniHub Module v0.3.0 -->
+<!-- Module werden von main.js in der richtigen Reihenfolge geladen -->
+<script src="js/core/i18n.js"></script>
+<script src="js/core/providers.js"></script>
+<script src="js/core/achievements.js"></script>
+<script src="js/ui/notifications.js"></script>
+<script src="js/ui/search.js"></script>
+<script src="js/features/widevine.js"></script>
+<script src="js/features/feedback.js"></script>
+<script src="js/app.js"></script>
+<script src="js/fixes.js"></script>
+<script src="js/patches.js"></script>
 </body>
 </html>

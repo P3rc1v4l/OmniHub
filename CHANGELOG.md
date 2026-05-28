@@ -1,5 +1,56 @@
 # OmniHub – Changelog
 
+## v0.3.0 – 2026-05-28
+
+### Bugfix: GitHub Actions Build-Fehler
+- **Ursache**: `cache: npm` in `setup-node` erwartet `package-lock.json`, welches nicht im Repo war
+- **Fix**: `cache: npm` entfernt, `npm install` statt `npm ci` → kein Lock-File mehr nötig
+
+### Neue Features
+- **Splash Screen** (`src/splash.html`): Zeigt animierten Ladebildschirm beim App-Start, wechselt nach `init()` zu `index.html`
+- **`splash_done` Command** (Rust): Navigiert das Fenster nach erfolgreichem Init von Splash → Haupt-App
+- **Session-Isolation** (Rust): Neue Commands `get_partition_name`, `set_session_active`, `get_active_sessions`, `clear_provider_session`, `clear_all_sessions` – Session-State wird persistent im Store gespeichert
+- **Session-Tracking** (Frontend): `openProvider()` markiert Provider als aktiv, `stopStream()` als inaktiv; Session-Dots werden alle 30s aktualisiert
+- **`sessions.rs`** – neues Rust-Modul für vollständige Session-Verwaltung
+
+### Verbesserungen
+- **CSP gehärtet**: `unsafe-eval` entfernt → `script-src 'self' 'unsafe-inline'` only; `object-src 'none'` ergänzt; font/style Sources explizit auf `fonts.googleapis.com`
+- **bundle.js aufgeteilt**: Einzelne Quell-Dateien statt einer 5000-Zeilen-Datei:
+  - `core/i18n.js`, `core/providers.js`, `core/achievements.js`
+  - `ui/notifications.js`, `ui/search.js`
+  - `features/widevine.js`, `features/feedback.js`
+  - `app.js`, `fixes.js`, `patches.js`
+- **bundle.js gelöscht** – nicht mehr benötigt
+- **`main.js`** – neuer Einstiegspunkt, lädt Module in korrekter Reihenfolge
+
+### Geänderte Dateien
+| Datei | Was geändert |
+|---|---|
+| `.github/workflows/build.yml` | `cache: npm` entfernt, `npm install` statt `npm ci` |
+| `src-tauri/tauri.conf.json` | Version 0.3.0, CSP gehärtet, Fenster startet mit `splash.html` |
+| `src-tauri/Cargo.toml` | Version 0.3.0, `url` crate ergänzt |
+| `src-tauri/src/lib.rs` | Session-Commands registriert |
+| `src-tauri/src/commands/mod.rs` | `splash` + `sessions` Module |
+| `src-tauri/src/commands/splash.rs` | **NEU** – `splash_done` Command |
+| `src-tauri/src/commands/sessions.rs` | **NEU** – Session-Isolation Commands |
+| `src/splash.html` | **NEU** – Animierter Ladebildschirm |
+| `src/index.html` | `splash_done()` nach init(), Einzelmodule statt bundle.js |
+| `src/js/tauri-bridge.js` | Session-Commands, `splashDone()` |
+| `src/js/bundle.js` | **GELÖSCHT** – durch Einzelmodule ersetzt |
+| `src/js/main.js` | **NEU** – Modul-Einstiegspunkt |
+| `src/js/core/i18n.js` | **NEU** – aus bundle.js extrahiert |
+| `src/js/core/providers.js` | **NEU** – aus bundle.js extrahiert |
+| `src/js/core/achievements.js` | **NEU** – aus bundle.js extrahiert |
+| `src/js/ui/notifications.js` | **NEU** – aus bundle.js extrahiert |
+| `src/js/ui/search.js` | **NEU** – aus bundle.js extrahiert |
+| `src/js/features/widevine.js` | **NEU** – aus bundle.js extrahiert |
+| `src/js/features/feedback.js` | **NEU** – aus bundle.js extrahiert |
+| `src/js/app.js` | **NEU** – aus bundle.js extrahiert (Haupt-App-Logik) |
+| `src/js/fixes.js` | **NEU** – aus bundle.js extrahiert |
+| `src/js/patches.js` | v0.3.0 Session + Splash Patches ergänzt |
+
+---
+
 ## v0.2.0 – 2026-05-28
 
 ### Neue Features
