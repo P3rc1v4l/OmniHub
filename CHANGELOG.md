@@ -4,6 +4,13 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.10.2] – 2026-05-29
+
+### Behoben (wichtig)
+- **Absturz beim Start behoben** (`Cannot read properties of undefined (reading 'getContext')`): Die Partikel-Komponente hat beim Start auf das Canvas zugegriffen, obwohl es (bei Partikel-Standard „aus") noch nicht existierte. Das löste einen „Uncaught"-Fehler aus, der den App-Aufbau stören konnte. Die Partikel-Logik läuft jetzt erst, **wenn das Canvas wirklich da ist**, und startet/stoppt sauber beim Ein-/Ausschalten. Dieser Fehler war ein heißer Kandidat dafür, dass auch **eingebettete Streams** und andere Abläufe gehakt haben.
+
+---
+
 ## [0.10.1] – 2026-05-29
 
 ### Behoben / Geändert

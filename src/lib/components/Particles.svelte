@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { settings } from '$lib/stores/settings';
+	import { get } from 'svelte/store';
 
-	let canvas: HTMLCanvasElement;
+	// bind:this als $state, damit der Effekt reagiert, sobald das Canvas existiert.
+	let canvas = $state<HTMLCanvasElement | undefined>();
 
 	type P = { x: number; y: number; vx: number; vy: number; r: number; shape: string };
 
@@ -29,21 +30,24 @@
 		ctx.fill();
 	}
 
-	onMount(() => {
-		const ctx = canvas.getContext('2d');
+	// Läuft erst, wenn das Canvas wirklich im DOM ist (Partikel an). Stürzt nie ab,
+	// wenn Partikel aus sind, und räumt beim Ausschalten sauber auf.
+	$effect(() => {
+		const el = canvas;
+		if (!el) return;
+		const ctx = el.getContext('2d');
 		if (!ctx) return;
+
 		let raf = 0;
 		let particles: P[] = [];
 		let w = 0, h = 0;
 
 		function resize() {
-			// robust: Viewport-Maße statt offsetWidth (das kann beim Mount 0 sein)
-			w = canvas.width = window.innerWidth;
-			h = canvas.height = window.innerHeight;
+			w = el!.width = window.innerWidth;
+			h = el!.height = window.innerHeight;
 		}
-
 		function seed() {
-			const a = $settings.appearance;
+			const a = get(settings).appearance;
 			const shapes = a.particleShapes?.length ? a.particleShapes : ['circle'];
 			const speed = a.particleSpeed;
 			const baseR = a.particleSize ?? 2;
@@ -56,10 +60,10 @@
 				shape: shapes[Math.floor(Math.random() * shapes.length)]
 			}));
 		}
-
 		function frame() {
+			if (!ctx) return;
 			ctx.clearRect(0, 0, w, h);
-			const color = $settings.appearance.particleColor;
+			const color = get(settings).appearance.particleColor;
 			ctx.fillStyle = color;
 			ctx.globalAlpha = 0.55;
 			for (const p of particles) {
@@ -68,7 +72,6 @@
 				if (p.y < -10) p.y = h + 10; else if (p.y > h + 10) p.y = -10;
 				drawShape(ctx, p);
 			}
-			// dünne Verbindungslinien
 			ctx.globalAlpha = 0.1;
 			ctx.strokeStyle = color;
 			for (let i = 0; i < particles.length; i++) {
@@ -89,7 +92,7 @@
 		resize();
 		seed();
 		frame();
-		const onR = () => { resize(); };
+		const onR = () => resize();
 		window.addEventListener('resize', onR);
 		const unsub = settings.subscribe(() => { if (w) seed(); });
 

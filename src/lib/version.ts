@@ -1,4 +1,4 @@
-export const APP_VERSION = '0.10.1';
+export const APP_VERSION = '0.10.2';
 export const APP_NAME = 'OmniHub';
 
 export const LINKS = {
