@@ -1,7 +1,7 @@
 # OmniHub – Roadmap
 
 Diese Datei hält den geplanten Funktionsumfang fest und wird **bei jeder Version aktualisiert**.
-Stand: v0.6.0
+Stand: v0.7.0
 
 Legende: ✅ erledigt · 🟡 teilweise · ⏳ geplant · 💡 in Klärung (Machbarkeit)
 
@@ -39,10 +39,12 @@ Legende: ✅ erledigt · 🟡 teilweise · ⏳ geplant · 💡 in Klärung (Mach
 - ✅ (8) Anbieter werden im Hauptfenster eingebettet (kein zweites Fenster mehr); Fenster-Fallback vorhanden
 - ✅ TMDB-Key eingetragen – Suche/Neuigkeiten/Upcoming liefern Daten
 
+## v0.7.0
+- ✅ (Update-Funktion) Echter In-App-Updater: Prüfung beim Start + auf Knopfdruck, Banner zum Herunterladen/Installieren (signiert über GitHub-Releases)
+
 ---
 
 ## Als Nächstes geplant (Reihenfolge laut Wunsch)
-- ⏳ (Update-Funktion) „Nach Updates suchen": in der App prüfen (Button + automatisch beim Start), Banner zum Herunterladen/Installieren der neuen Version
 - ⏳ (5) Suche nach Filmen/Serien/Anime: Klick öffnet Titel-Info (Inhaltsangabe, Trailer) + Liste der Anbieter, bei denen der Titel läuft (mit Verlinkung)
 - ⏳ (6) Original-Logos der Anbieter auf den Karten (später im Karteneditor anpassbar)
 - ⏳ (4) Erklärung „echte Marken-Logos (lokale SVGs)" – siehe Antwort; Umsetzung folgt mit (6)

@@ -4,6 +4,22 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.7.0] – 2026-05-29
+
+### Hinzugefügt
+- **Echter In-App-Updater.** Beim Start (still) und auf Knopfdruck (Einstellungen → Mehr → „Nach Updates suchen") prüft die App gegen die GitHub-Releases. Gibt es eine neuere, signierte Version, erscheint oben ein **Banner** mit „Herunterladen & installieren" inkl. Fortschrittsbalken; danach startet die App automatisch neu.
+- Signierte Updates über das Tauri-Updater-Plugin (Schlüsselpaar erzeugt, öffentlicher Schlüssel in der Konfiguration).
+
+### Technisch
+- Plugins `tauri-plugin-updater` und `tauri-plugin-process` ergänzt (Rust + JS) und Berechtigungen `updater:default` / `process:default` hinzugefügt.
+- Release-Workflow signiert die Update-Artefakte und erzeugt `latest.json` (über GitHub-Secrets `TAURI_SIGNING_PRIVATE_KEY` / `…_PASSWORD`).
+
+### Wichtig
+- Die Secrets müssen **vor** dem Build von v0.7.0 in GitHub hinterlegt sein, sonst schlägt der Build fehl.
+- Ein bereits installiertes v0.6.0 kann sich nicht selbst aktualisieren (hat noch keinen Updater). v0.7.0 einmalig manuell installieren – ab dann laufen Updates automatisch.
+
+---
+
 ## [0.6.0] – 2026-05-29
 
 ### Hinzugefügt

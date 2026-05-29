@@ -9,6 +9,8 @@
 	import Toasts from '$lib/components/Toasts.svelte';
 	import Clock from '$lib/components/Clock.svelte';
 	import Particles from '$lib/components/Particles.svelte';
+	import UpdateBanner from '$lib/components/UpdateBanner.svelte';
+	import { checkForUpdate } from '$lib/stores/updater';
 	import { settings, hydrateSettings, applySettings } from '$lib/stores/settings';
 	import { hydrateCatalog } from '$lib/stores/providers';
 	import { hydrateProfiles, loadProfileData, activeProfileId } from '$lib/stores/profiles';
@@ -39,6 +41,9 @@
 
 		if (!get(settings).onboardingDone) showOnboarding = true;
 		window.addEventListener('keydown', onKey);
+
+		// Automatisch beim Start nach einem Update suchen (still, ohne Meldung wenn nichts da ist).
+		void checkForUpdate(false);
 	});
 
 	// Neu freigeschaltete Achievements melden (nur einmal je Achievement).
@@ -66,6 +71,7 @@
 <div class="root">
 	<Particles />
 	<Titlebar onHelp={() => (showShortcuts = true)} />
+	<UpdateBanner />
 	<div class="below">
 		<Sidebar openSettings={() => openSettings()} openProfiles={() => openSettings('account')} />
 		<main>{@render children()}</main>

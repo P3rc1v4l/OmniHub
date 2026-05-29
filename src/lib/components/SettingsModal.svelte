@@ -6,6 +6,7 @@
 		setPin, clearPin, verifyPin, MAX_PROFILES, MIN_PROFILES
 	} from '$lib/stores/profiles';
 	import { APP_VERSION, LINKS } from '$lib/version';
+	import { updateState, checkForUpdate } from '$lib/stores/updater';
 
 	let { open = false, initialTab = 'appearance', close }: { open?: boolean; initialTab?: string; close: () => void } = $props();
 
@@ -209,8 +210,14 @@
 							<button class="ghost" onclick={resetProviders}>Anbieterkarten zurücksetzen</button>
 							<button class="ghost" onclick={() => ($settings.onboardingDone = false)}>Onboarding erneut starten</button>
 							<a class="ghost link" href={LINKS.discord} target="_blank" rel="noreferrer">Discord – Feedback & Support</a>
-							<a class="ghost link" href={LINKS.githubReleases} target="_blank" rel="noreferrer">Nach Updates suchen (GitHub Releases)</a>
+							<button class="ghost" disabled={$updateState.checking} onclick={() => checkForUpdate(true)}>
+								{$updateState.checking ? 'Wird geprüft…' : '⬆️ Nach Updates suchen'}
+							</button>
+							<a class="ghost link" href={LINKS.githubReleases} target="_blank" rel="noreferrer">Alle Versionen ansehen</a>
 						</div>
+						{#if $updateState.available}
+							<p class="hint">Update auf v{$updateState.version} verfügbar – das Banner oben bietet „Herunterladen & installieren".</p>
+						{/if}
 						<p class="hint">VPN, Watchlist-Import/Export und WideVine-Status folgen in einer späteren Version.</p>
 					{:else if active === 'account'}
 						<p class="acc-intro">Jedes Profil hat eigene Favoriten, Watchlist, Streamzeit und – beim Streamen – getrennte Logins.</p>
