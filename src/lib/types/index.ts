@@ -72,6 +72,8 @@ export interface PluginSettings {
 	sleepTimerMinutes: number;
 	sleepTimerCloseStream: boolean;
 	continueWatching: boolean;
+	discordEnabled: boolean;
+	discordClientId: string;
 }
 
 export interface Settings {

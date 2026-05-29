@@ -36,7 +36,9 @@ export const DEFAULT_SETTINGS: Settings = {
 		sleepTimerEnabled: false,
 		sleepTimerMinutes: 60,
 		sleepTimerCloseStream: true,
-		continueWatching: true
+		continueWatching: true,
+		discordEnabled: false,
+		discordClientId: ''
 	},
 	onboardingDone: false
 };

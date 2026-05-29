@@ -469,6 +469,23 @@
 							{/if}
 						</div>
 
+						<div class="plugin">
+							<div class="plugin-head">
+								<label class="toggle"><input type="checkbox" bind:checked={$settings.plugins.discordEnabled}/> <b>Discord-Status</b></label>
+							</div>
+							<p class="hint">Zeigt auf deinem Discord-Profil „Schaut …" an. Voraussetzung: Discord-App läuft + eigene Discord-Application-ID (Client-ID).</p>
+							{#if $settings.plugins.discordEnabled}
+								<div class="plugin-opts">
+									<label style="flex-basis:100%">Discord Application-ID (Client-ID):
+										<input class="pin-in wide" style="display:block;margin-top:6px" type="text" inputmode="numeric" placeholder="z.B. 1234567890123456789" bind:value={$settings.plugins.discordClientId} />
+									</label>
+									<p class="hint" style="margin-top:4px">
+										Anlegen unter <b>discord.com/developers/applications</b> → „New Application" → die <b>Application ID</b> hierher kopieren. Optional ein Bild als „omnihub" unter Rich Presence → Art Assets hochladen.
+									</p>
+								</div>
+							{/if}
+						</div>
+
 						<div class="block" style="margin-top:16px">
 							<div class="block-label">Browser-Erweiterungen (z.B. AdBlock, Buster)</div>
 							<p class="hint" style="margin-top:0">

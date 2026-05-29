@@ -4,6 +4,17 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.12.0] – 2026-05-29
+
+### Hinzugefügt
+- **Discord-Status (Rich Presence) als Plugin-Modul:** Im „Plugins"-Tab aktivierbar. Bei aktivem Stream zeigt Discord „Schaut <Anbieter>", sonst „Durchstöbert OmniHub". Voraussetzung: laufende Discord-App + eigene **Discord-Application-ID** (Client-ID), die im Plugins-Tab eingetragen wird.
+  - Rust-Backend via Crate `discord-rich-presence` 1.1.0 mit Commands `discord_connect/set_activity/clear/disconnect` (lokale Discord-IPC).
+  - Frontend-Modul aktualisiert die Anzeige automatisch beim Wechsel des Streams.
+
+> Hinweis: Der Rust-Teil konnte lokal nicht kompiliert werden – bitte über GitHub Actions bauen. Bei Build-Fehlern Meldung schicken, dann nachbessern.
+
+---
+
 ## [0.11.0] – 2026-05-29
 
 ### Hinzugefügt

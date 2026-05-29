@@ -1,7 +1,7 @@
 # OmniHub – Roadmap
 
 Diese Datei hält den geplanten Funktionsumfang fest und wird **bei jeder Version aktualisiert**.
-Stand: v0.11.0
+Stand: v0.12.0
 
 Legende: ✅ erledigt · 🟡 teilweise · ⏳ geplant · 💡 in Klärung (Machbarkeit)
 
@@ -94,6 +94,11 @@ Legende: ✅ erledigt · 🟡 teilweise · ⏳ geplant · 💡 in Klärung (Mach
 - ✅ (18) Plugin-/Modul-System: Plugins-Tab funktional (Weiterschauen-Toggle, Sleep-Timer)
 - ✅ (3) Eingebettete Streams laufen (durch Partikel-Absturz-Fix in v0.10.2)
 - ℹ️ Echte Browser-Erweiterungen (AdBlock/Buster) nicht möglich (System-WebView); Captcha-Solver bewusst nicht
+
+---
+
+## v0.12.0
+- ✅ Discord-Status (Rich Presence) als Plugin-Modul (Rust-Backend, lokal nicht testbar)
 
 ---
 
