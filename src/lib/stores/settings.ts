@@ -32,6 +32,12 @@ export const DEFAULT_SETTINGS: Settings = {
 		pauseReminder: true, sound: true, updateHint: true,
 		achievementUnlocked: true, watchlistReminder: true
 	},
+	plugins: {
+		sleepTimerEnabled: false,
+		sleepTimerMinutes: 60,
+		sleepTimerCloseStream: true,
+		continueWatching: true
+	},
 	onboardingDone: false
 };
 
@@ -83,6 +89,7 @@ export async function hydrateSettings(): Promise<void> {
 		appearance: { ...DEFAULT_SETTINGS.appearance, ...saved.appearance },
 		clock: { ...DEFAULT_SETTINGS.clock, ...saved.clock },
 		notifications: { ...DEFAULT_SETTINGS.notifications, ...saved.notifications },
+		plugins: { ...DEFAULT_SETTINGS.plugins, ...saved.plugins },
 		onboardingDone: saved.onboardingDone ?? false
 	};
 	settings.set(merged);

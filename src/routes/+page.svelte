@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { visibleProviders, favoriteProviders, recentProviders, favorites, toggleFavorite, providerOrder, setProviderOrder } from '$lib/stores/providers';
+	import { settings } from '$lib/stores/settings';
 	import ProviderCard from '$lib/components/ProviderCard.svelte';
 	import Logo from '$lib/components/Logo.svelte';
 	import AddProviderModal from '$lib/components/AddProviderModal.svelte';
@@ -86,7 +87,7 @@
 		</div>
 	</header>
 
-	{#if $recentProviders.length && !search}
+	{#if $recentProviders.length && !search && $settings.plugins.continueWatching}
 		<div class="section-label">Zuletzt geöffnet</div>
 		<div class="chips">
 			{#each $recentProviders as p (p.id)}

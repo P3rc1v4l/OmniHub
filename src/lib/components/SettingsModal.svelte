@@ -438,6 +438,43 @@
 						</div>
 
 						<p class="hint">Profil wechseln kannst du unten links über den Profil-Button.</p>
+					{:else if active === 'plugins'}
+						<p class="acc-intro">Schalte eingebaute Zusatzfunktionen an oder aus.</p>
+
+						<div class="plugin">
+							<div class="plugin-head">
+								<label class="toggle"><input type="checkbox" bind:checked={$settings.plugins.continueWatching}/> <b>Weiterschauen</b></label>
+							</div>
+							<p class="hint">Zeigt auf der Startseite die Reihe „Zuletzt geöffnet" für schnellen Wiedereinstieg.</p>
+						</div>
+
+						<div class="plugin">
+							<div class="plugin-head">
+								<label class="toggle"><input type="checkbox" bind:checked={$settings.plugins.sleepTimerEnabled}/> <b>Sleep-Timer</b></label>
+							</div>
+							<p class="hint">Nach Ablauf der Zeit wird ein Hinweis gezeigt – optional wird der laufende Stream geschlossen. Der Timer startet, sobald du ihn einschaltest.</p>
+							{#if $settings.plugins.sleepTimerEnabled}
+								<div class="plugin-opts">
+									<label>Dauer:
+										<select bind:value={$settings.plugins.sleepTimerMinutes}>
+											<option value={15}>15 Minuten</option>
+											<option value={30}>30 Minuten</option>
+											<option value={60}>60 Minuten</option>
+											<option value={90}>90 Minuten</option>
+											<option value={120}>2 Stunden</option>
+										</select>
+									</label>
+									<label class="toggle"><input type="checkbox" bind:checked={$settings.plugins.sleepTimerCloseStream}/> Stream danach schließen</label>
+								</div>
+							{/if}
+						</div>
+
+						<div class="block" style="margin-top:16px">
+							<div class="block-label">Browser-Erweiterungen (z.B. AdBlock, Buster)</div>
+							<p class="hint" style="margin-top:0">
+								Echte Browser-Erweiterungen lassen sich hier <b>nicht installieren</b>: OmniHub nutzt die System-WebView (Edge/WebView2), nicht Chrome – es gibt keine Schnittstelle, um Erweiterungen wie AdBlock oder Buster zu laden. Captcha-Solver werden zudem bewusst nicht angeboten.
+							</p>
+						</div>
 					{:else}
 						<p class="hint">Dieser Tab wird in einer kommenden Version ausgebaut.</p>
 					{/if}
@@ -530,6 +567,11 @@
 	.pin-in.wide { width: 240px; letter-spacing: normal; }
 	.admin-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 	.admin-status { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+	.plugin { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+	.plugin-head { display: flex; align-items: center; justify-content: space-between; }
+	.plugin .hint { margin: 6px 0 0; }
+	.plugin-opts { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
+	.plugin-opts select { background: var(--bg-elev); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px 10px; font-family: inherit; }
 	.pin-err { color: #f87171; font-size: 12px; }
 	.mini { background: var(--bg-elev); border: 1px solid var(--border); color: var(--text-muted); padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 12.5px; font-family: inherit; }
 	.mini:hover { color: var(--text); border-color: var(--border-strong); }

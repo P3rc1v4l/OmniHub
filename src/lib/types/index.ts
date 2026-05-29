@@ -67,10 +67,18 @@ export interface AppearanceSettings {
 	backgroundOpacity: number;
 }
 
+export interface PluginSettings {
+	sleepTimerEnabled: boolean;
+	sleepTimerMinutes: number;
+	sleepTimerCloseStream: boolean;
+	continueWatching: boolean;
+}
+
 export interface Settings {
 	appearance: AppearanceSettings;
 	clock: ClockSettings;
 	notifications: NotificationSettings;
+	plugins: PluginSettings;
 	onboardingDone: boolean;
 }
 

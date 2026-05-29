@@ -4,6 +4,19 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.11.0] – 2026-05-29
+
+### Hinzugefügt
+- **Plugin-/Modul-System (Punkt 18):** Der „Plugins"-Tab ist jetzt funktional – eingebaute Zusatzfunktionen lassen sich an-/ausschalten:
+  - **Weiterschauen:** blendet die „Zuletzt geöffnet"-Reihe auf der Startseite ein/aus.
+  - **Sleep-Timer:** zeigt nach 15/30/60/90/120 Min einen Hinweis und schließt optional den laufenden Stream.
+
+### Hinweis (ehrlich)
+- **Echte Browser-Erweiterungen** (AdBlock, Buster usw.) lassen sich technisch **nicht** installieren: OmniHub nutzt die System-WebView (Edge/WebView2), nicht Chrome – Tauri bietet dafür keine Schnittstelle. **Captcha-Solver** werden bewusst nicht angeboten. Der Plugins-Tab weist darauf hin.
+- Weitere Module wie **Discord-Status** sind möglich, brauchen aber eine zusätzliche (Rust-)Integration – auf Wunsch als Nächstes.
+
+---
+
 ## [0.10.2] – 2026-05-29
 
 ### Behoben (wichtig)
