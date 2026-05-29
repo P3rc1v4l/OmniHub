@@ -3,7 +3,7 @@
 	import { resetProviders } from '$lib/stores/providers';
 	import {
 		profiles, activeProfileId, addProfile, renameProfile, deleteProfile,
-		setPin, clearPin, MAX_PROFILES, MIN_PROFILES
+		setPin, clearPin, verifyPin, MAX_PROFILES, MIN_PROFILES
 	} from '$lib/stores/profiles';
 	import { APP_VERSION, LINKS } from '$lib/version';
 
@@ -20,9 +20,18 @@
 	let active = $state('appearance');
 	let tabSearch = $state('');
 
-	// Profilverwaltung
+	// Profilverwaltung – PIN-Bearbeitung mit Abfrage des alten PINs
 	let pinEditFor = $state<string | null>(null);
-	let pinInput = $state('');
+	let oldPinInput = $state('');
+	let newPinInput = $state('');
+	let pinError = $state('');
+
+	function openPinPanel(id: string) {
+		pinEditFor = id; oldPinInput = ''; newPinInput = ''; pinError = '';
+	}
+	function closePinPanel() {
+		pinEditFor = null; oldPinInput = ''; newPinInput = ''; pinError = '';
+	}
 
 	// Beim Öffnen den gewünschten Tab aktivieren.
 	$effect(() => { if (open) active = initialTab; });
@@ -31,10 +40,16 @@
 		tabs.filter((t) => t.label.toLowerCase().includes(tabSearch.toLowerCase()))
 	);
 
-	async function savePin(id: string) {
-		if (pinInput.trim().length < 4) return;
-		await setPin(id, pinInput.trim());
-		pinEditFor = null; pinInput = '';
+	async function savePin(p: { id: string; pinHash: string | null }) {
+		if (p.pinHash && !(await verifyPin(oldPinInput, p.pinHash))) { pinError = 'Alter PIN ist falsch.'; return; }
+		if (newPinInput.trim().length < 4) { pinError = 'Neuer PIN braucht mindestens 4 Zeichen.'; return; }
+		await setPin(p.id, newPinInput.trim());
+		closePinPanel();
+	}
+	async function removePin(p: { id: string; pinHash: string | null }) {
+		if (p.pinHash && !(await verifyPin(oldPinInput, p.pinHash))) { pinError = 'Alter PIN ist falsch.'; return; }
+		clearPin(p.id);
+		closePinPanel();
 	}
 
 	function onBackdrop(e: MouseEvent) { if (e.target === e.currentTarget) close(); }
@@ -85,7 +100,14 @@
 								<select bind:value={$settings.appearance.fontFamily}>
 									<option value="'DM Sans', ui-sans-serif, system-ui, sans-serif">DM Sans</option>
 									<option value="ui-sans-serif, system-ui, sans-serif">System</option>
-									<option value="ui-monospace, 'Consolas', monospace">Monospace</option>
+									<option value="'Segoe UI', sans-serif">Segoe UI</option>
+									<option value="Verdana, sans-serif">Verdana</option>
+									<option value="Tahoma, sans-serif">Tahoma</option>
+									<option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+									<option value="Georgia, serif">Georgia (Serif)</option>
+									<option value="'Times New Roman', serif">Times New Roman</option>
+									<option value="'Courier New', ui-monospace, monospace">Courier (Mono)</option>
+									<option value="'Comic Sans MS', cursive">Comic Sans</option>
 								</select>
 							</div>
 
@@ -127,6 +149,29 @@
 								<label class="toggle"><input type="checkbox" bind:checked={$settings.appearance.animations}/> Animationen</label>
 							</div>
 						</div>
+
+						{#if $settings.appearance.particles}
+							<div class="block">
+								<div class="block-label">Partikel-Optionen</div>
+								<div class="grid">
+									<div class="field">
+										<label>Anzahl: {$settings.appearance.particleCount}</label>
+										<input type="range" min="10" max="150" bind:value={$settings.appearance.particleCount} />
+									</div>
+									<div class="field">
+										<label>Geschwindigkeit: {$settings.appearance.particleSpeed.toFixed(1)}</label>
+										<input type="range" min="0.2" max="3" step="0.1" bind:value={$settings.appearance.particleSpeed} />
+									</div>
+									<div class="field">
+										<label>Partikel-Farbe</label>
+										<div class="row">
+											<input type="color" bind:value={$settings.appearance.particleColor} />
+											<input type="text" class="hex" bind:value={$settings.appearance.particleColor} />
+										</div>
+									</div>
+								</div>
+							</div>
+						{/if}
 					{:else if active === 'notifications'}
 						<div class="grid">
 							<label class="toggle"><input type="checkbox" bind:checked={$settings.notifications.pauseReminder}/> Pause-Erinnerung (nach 2h)</label>
@@ -175,17 +220,21 @@
 									<span class="pav">👤</span>
 									<input class="pname-in" value={p.name} oninput={(e) => renameProfile(p.id, (e.currentTarget as HTMLInputElement).value)} />
 									{#if p.id === $activeProfileId}<span class="pbadge">aktiv</span>{/if}
+									<button class="mini" onclick={() => openPinPanel(p.id)}>{p.pinHash ? '🔒 PIN ändern' : 'PIN setzen'}</button>
+									<button class="mini danger" disabled={$profiles.length <= MIN_PROFILES} onclick={() => deleteProfile(p.id)} title={$profiles.length <= MIN_PROFILES ? 'Mindestens ein Profil nötig' : 'Profil löschen'}>🗑</button>
 
 									{#if pinEditFor === p.id}
-										<input class="pin-in" type="password" inputmode="numeric" placeholder="neue PIN (min. 4)" bind:value={pinInput} onkeydown={(e) => e.key === 'Enter' && savePin(p.id)} />
-										<button class="mini primary" onclick={() => savePin(p.id)}>OK</button>
-										<button class="mini" onclick={() => { pinEditFor = null; pinInput = ''; }}>✕</button>
-									{:else}
-										<button class="mini" onclick={() => { pinEditFor = p.id; pinInput = ''; }}>{p.pinHash ? 'PIN ändern' : 'PIN setzen'}</button>
-										{#if p.pinHash}<button class="mini" onclick={() => clearPin(p.id)}>PIN entfernen</button>{/if}
+										<div class="pin-panel">
+											{#if p.pinHash}
+												<input class="pin-in" type="password" inputmode="numeric" placeholder="Alter PIN" bind:value={oldPinInput} />
+											{/if}
+											<input class="pin-in" type="password" inputmode="numeric" placeholder="Neuer PIN (min. 4)" bind:value={newPinInput} onkeydown={(e) => e.key === 'Enter' && savePin(p)} />
+											<button class="mini primary" onclick={() => savePin(p)}>Speichern</button>
+											{#if p.pinHash}<button class="mini danger" onclick={() => removePin(p)}>PIN entfernen</button>{/if}
+											<button class="mini" onclick={closePinPanel}>Abbrechen</button>
+											{#if pinError}<span class="pin-err">{pinError}</span>{/if}
+										</div>
 									{/if}
-
-									<button class="mini danger" disabled={$profiles.length <= MIN_PROFILES} onclick={() => deleteProfile(p.id)} title={$profiles.length <= MIN_PROFILES ? 'Mindestens ein Profil nötig' : 'Profil löschen'}>🗑</button>
 								</div>
 							{/each}
 						</div>
@@ -272,6 +321,8 @@
 	.pname-in { flex: 1; min-width: 120px; background: var(--bg-elev); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 7px 10px; font-size: 13.5px; font-family: inherit; }
 	.pbadge { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 3px 8px; border-radius: 999px; }
 	.pin-in { width: 150px; background: var(--bg-elev); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 7px 10px; font-size: 13px; letter-spacing: 3px; font-family: inherit; }
+	.pin-panel { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--border); }
+	.pin-err { color: #f87171; font-size: 12px; }
 	.mini { background: var(--bg-elev); border: 1px solid var(--border); color: var(--text-muted); padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 12.5px; font-family: inherit; }
 	.mini:hover { color: var(--text); border-color: var(--border-strong); }
 	.mini.primary { background: var(--accent); color: var(--accent-text); border: 0; font-weight: 700; }

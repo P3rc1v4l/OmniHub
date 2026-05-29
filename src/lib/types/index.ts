@@ -52,10 +52,14 @@ export interface AppearanceSettings {
 	sidebarWidth: number;
 	glassmorphism: boolean;
 	particles: boolean;
+	particleCount: number;
+	particleSpeed: number;
+	particleColor: string;
 	cardShadow: boolean;
 	cardHoverZoom: boolean;
 	animations: boolean;
 	language: 'de' | 'en';
+	backgroundOpacity: number;
 }
 
 export interface Settings {

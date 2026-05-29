@@ -15,10 +15,14 @@ export const DEFAULT_SETTINGS: Settings = {
 		sidebarWidth: 220,
 		glassmorphism: true,
 		particles: false,
+		particleCount: 50,
+		particleSpeed: 1,
+		particleColor: '#30c5bb',
 		cardShadow: true,
 		cardHoverZoom: true,
 		animations: true,
-		language: 'de'
+		language: 'de',
+		backgroundOpacity: 100
 	},
 	clock: { enabled: false, type: 'digital', showSeconds: true, color: '#ffffff', transparency: 50, size: 36 },
 	notifications: {
@@ -40,6 +44,11 @@ export function applySettings(s: Settings): void {
 	root.style.setProperty('--font-size', `${a.fontSize}px`);
 	root.style.setProperty('--sidebar-width', `${a.sidebarWidth}px`);
 	root.style.setProperty('--font-family', a.fontFamily);
+	// Optik-Schalter als data-Attribute -> CSS reagiert darauf (siehe app.css).
+	root.setAttribute('data-glass', a.glassmorphism ? 'true' : 'false');
+	root.setAttribute('data-shadow', a.cardShadow ? 'true' : 'false');
+	root.setAttribute('data-hover-zoom', a.cardHoverZoom ? 'true' : 'false');
+	root.setAttribute('data-animations', a.animations ? 'true' : 'false');
 	let theme = a.theme;
 	if (theme === 'system') {
 		theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';

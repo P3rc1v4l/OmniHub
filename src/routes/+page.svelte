@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { visibleProviders, favoriteProviders, recentProviders, providers } from '$lib/stores/providers';
+	import { visibleProviders, favoriteProviders, recentProviders, favorites, toggleFavorite } from '$lib/stores/providers';
 	import ProviderCard from '$lib/components/ProviderCard.svelte';
 	import Logo from '$lib/components/Logo.svelte';
+	import AddProviderModal from '$lib/components/AddProviderModal.svelte';
 	import { tmdb } from '$lib/tmdb';
 	import { addToWatchlist, watchlist, isInWatchlist } from '$lib/stores/watchlist';
 	import type { TmdbItem, Provider } from '$lib/types';
@@ -11,16 +12,19 @@
 	let search = $state('');
 	let sortAZ = $state(false);
 	let view: 'grid' | 'list' = $state('grid');
+	let showAdd = $state(false);
 	let tmdbResults = $state<TmdbItem[]>([]);
 	let searching = $state(false);
 	let searchToken = 0;
 
-	// Anbieter nach Suche & Sortierung filtern
+	// "Alle Anbieter": ohne Suche werden Favoriten ausgeblendet (sie stehen oben in
+	// der Favoriten-Reihe). Bei aktiver Suche werden alle Treffer gezeigt.
 	const sortedFiltered = $derived.by(() => {
 		const q = search.trim().toLowerCase();
 		let list = $visibleProviders.filter((p) =>
 			!q || p.name.toLowerCase().includes(q) || p.subtitle.toLowerCase().includes(q)
 		);
+		if (!q) list = list.filter((p) => !$favorites.includes(p.id));
 		if (sortAZ) list = [...list].sort((a, b) => a.name.localeCompare(b.name, 'de'));
 		return list;
 	});
@@ -38,12 +42,14 @@
 		return () => clearTimeout(t);
 	});
 
-	function openRecent(p: Provider) {
+	function openProvider(p: Provider) {
 		markOpened(p.id);
 		activeStream.set(p);
 		openInWindow(p);
 	}
 </script>
+
+<AddProviderModal open={showAdd} close={() => (showAdd = false)} />
 
 <div class="page">
 	<header class="top">
@@ -58,10 +64,10 @@
 		</div>
 		<div class="tools">
 			<button class="tool" class:active={sortAZ} title="A–Z sortieren" onclick={() => (sortAZ = !sortAZ)}>A↓Z</button>
-			<button class="primary"><span>＋</span> Anbieter</button>
+			<button class="primary" onclick={() => (showAdd = true)}><span>＋</span> Anbieter</button>
 			<div class="view">
-				<button class:active={view === 'grid'} onclick={() => (view = 'grid')} aria-label="Raster">▦</button>
-				<button class:active={view === 'list'} onclick={() => (view = 'list')} aria-label="Liste">≡</button>
+				<button class:active={view === 'grid'} onclick={() => (view = 'grid')} aria-label="Rasteransicht" title="Raster">▦</button>
+				<button class:active={view === 'list'} onclick={() => (view = 'list')} aria-label="Listenansicht" title="Liste">≡</button>
 			</div>
 		</div>
 	</header>
@@ -70,7 +76,7 @@
 		<div class="section-label">Zuletzt geöffnet</div>
 		<div class="chips">
 			{#each $recentProviders as p (p.id)}
-				<button class="chip" onclick={() => openRecent(p)} style="--c1: {p.color}; --c2: {p.color2 ?? p.color}">
+				<button class="chip" onclick={() => openProvider(p)} style="--c1: {p.color}; --c2: {p.color2 ?? p.color}">
 					<Logo provider={p} size={24} />
 					<span>{p.name}</span>
 				</button>
@@ -88,11 +94,33 @@
 	{/if}
 
 	<div class="section-label">Alle Anbieter</div>
-	<div class="grid all">
-		{#each sortedFiltered as p (p.id)}
-			<ProviderCard provider={p} size="compact" />
-		{/each}
-	</div>
+	{#if view === 'grid'}
+		<div class="grid all">
+			{#each sortedFiltered as p (p.id)}
+				<ProviderCard provider={p} size="compact" />
+			{/each}
+		</div>
+	{:else}
+		<div class="list">
+			{#each sortedFiltered as p (p.id)}
+				<div class="lrow" style="--c1: {p.color}; --c2: {p.color2 ?? p.color}">
+					<button class="lopen" onclick={() => openProvider(p)} title={`${p.name} öffnen`}>
+						<Logo provider={p} size={34} />
+						<span class="lname">{p.name}</span>
+						<span class="lsub">{p.subtitle}</span>
+					</button>
+					<span class="lq">{p.quality}</span>
+					<button
+						class="lfav"
+						class:on={$favorites.includes(p.id)}
+						onclick={() => toggleFavorite(p.id)}
+						aria-label="Favorit umschalten"
+						title={$favorites.includes(p.id) ? 'Favorit' : 'Zu Favoriten'}
+					>{$favorites.includes(p.id) ? '★' : '☆'}</button>
+				</div>
+			{/each}
+		</div>
+	{/if}
 
 	{#if search.trim().length >= 3}
 		<div class="section-label" style="margin-top: 26px">Filme & Serien (TMDB)</div>
@@ -156,6 +184,25 @@
 
 	.grid.favs { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-bottom: 22px; }
 	.grid.all { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+
+	.list { display: flex; flex-direction: column; gap: 8px; }
+	.lrow {
+		display: flex; align-items: center; gap: 14px;
+		background: var(--bg-card); border: 1px solid var(--border);
+		border-radius: 12px; padding: 8px 14px 8px 8px;
+		border-left: 3px solid var(--c1);
+	}
+	.lrow:hover { border-color: var(--border-strong); }
+	.lopen {
+		display: flex; align-items: center; gap: 12px; flex: 1;
+		background: transparent; border: 0; color: var(--text); cursor: pointer;
+		text-align: left; font-family: inherit; min-width: 0;
+	}
+	.lname { font-weight: 700; font-size: 14px; }
+	.lsub { color: var(--text-muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+	.lq { font-size: 11px; font-weight: 700; color: var(--text-muted); background: var(--bg-card-2); padding: 3px 8px; border-radius: 999px; }
+	.lfav { background: transparent; border: 0; color: var(--text-dim); font-size: 18px; cursor: pointer; }
+	.lfav.on { color: #facc15; }
 
 	.tmdb { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
 	.tcard { padding: 0; overflow: hidden; display: flex; flex-direction: column; }

@@ -2,7 +2,7 @@ import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
 import { DEFAULT_PROVIDERS } from '$lib/data/providers';
 import { loadState, saveState } from '$lib/persistence';
-import type { Provider } from '$lib/types';
+import type { Provider, Quality } from '$lib/types';
 
 // Katalog = global (welche Anbieter existieren, URL, Farbe, sichtbar/versteckt).
 export const providers = writable<Provider[]>([]);
@@ -28,6 +28,29 @@ export function toggleFavorite(id: string): void {
 
 export function markOpened(id: string): void {
 	recentProviderIds.update(($r) => [id, ...$r.filter((x) => x !== id)].slice(0, 5));
+}
+
+export function addCustomProvider(data: {
+	name: string; url: string; subtitle?: string; color?: string; quality?: Quality;
+}): void {
+	const slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+	const id = `custom-${slug || 'anbieter'}-${Date.now().toString(36)}`;
+	let url = data.url.trim();
+	if (url && !/^https?:\/\//i.test(url)) url = `https://${url}`;
+	const color = data.color || '#30c5bb';
+	providers.update(($p) => [
+		...$p,
+		{
+			id, name: data.name.trim() || 'Eigener Anbieter',
+			subtitle: (data.subtitle || 'Eigener Anbieter').trim(),
+			url, category: 'eigene', color, color2: color,
+			quality: data.quality || 'HD', custom: true
+		}
+	]);
+}
+
+export function removeCustomProvider(id: string): void {
+	providers.update(($p) => $p.filter((x) => x.id !== id));
 }
 
 // --- Katalog (global) ---

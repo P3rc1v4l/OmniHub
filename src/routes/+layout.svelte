@@ -6,6 +6,9 @@
 	import SettingsModal from '$lib/components/SettingsModal.svelte';
 	import ShortcutsModal from '$lib/components/ShortcutsModal.svelte';
 	import OnboardingModal from '$lib/components/OnboardingModal.svelte';
+	import Toasts from '$lib/components/Toasts.svelte';
+	import Clock from '$lib/components/Clock.svelte';
+	import Particles from '$lib/components/Particles.svelte';
 	import { settings, hydrateSettings, applySettings } from '$lib/stores/settings';
 	import { hydrateCatalog } from '$lib/stores/providers';
 	import { hydrateProfiles, loadProfileData, activeProfileId } from '$lib/stores/profiles';
@@ -61,6 +64,7 @@
 </script>
 
 <div class="root">
+	<Particles />
 	<Titlebar onHelp={() => (showShortcuts = true)} />
 	<div class="below">
 		<Sidebar openSettings={() => openSettings()} openProfiles={() => openSettings('account')} />
@@ -68,12 +72,15 @@
 	</div>
 </div>
 
+<Clock />
+<Toasts />
+
 <SettingsModal open={showSettings} initialTab={settingsTab} close={() => (showSettings = false)} />
 <ShortcutsModal open={showShortcuts} close={() => (showShortcuts = false)} />
 <OnboardingModal open={showOnboarding} close={() => (showOnboarding = false)} />
 
 <style>
-	.root { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; }
-	.below { display: flex; flex: 1; min-height: 0; }
-	main { flex: 1; overflow-y: auto; background: var(--bg); height: 100%; }
+	.root { display: flex; flex-direction: column; height: 100vh; width: 100vw; overflow: hidden; position: relative; }
+	.below { display: flex; flex: 1; min-height: 0; position: relative; z-index: 1; }
+	main { flex: 1; overflow-y: auto; background: transparent; height: 100%; }
 </style>

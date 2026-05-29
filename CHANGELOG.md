@@ -4,6 +4,31 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.5.0] – 2026-05-29
+
+Großer Funktionsblock aus der 17-Punkte-Liste.
+
+### Hinzugefügt
+- **50 Achievements** (statt 9), gestaffelt nach Streamzeit, gestarteten Streams, genutzten Anbietern, Favoriten und Watchlist.
+- **In-App-Benachrichtigungen (Toasts).** Alle Push-Hinweise – inkl. Achievement-Freischaltung – erscheinen nur in der App, **nicht** mehr in den Windows-Benachrichtigungen.
+- **Uhr-Overlay** wird angezeigt (digital oder analog, mit Farbe, Größe, Sekunden und Transparenz).
+- **Partikel-Hintergrund** wird gerendert, mit Detailoptionen für Anzahl, Geschwindigkeit und Farbe.
+- **„+ Anbieter"** öffnet einen Editor, um eigene Anbieter anzulegen (Name, URL, Beschreibung, Farbe, Qualität).
+- **Raster-/Listenansicht** der Anbieter ist umschaltbar.
+- Profilverwaltung: **PIN-Änderung fragt zuerst den alten PIN ab**; PIN entfernen ebenso geschützt.
+- **ROADMAP.md** angelegt – hält alle 17 Wunsch-Punkte mit Status fest und wird laufend aktualisiert.
+
+### Geändert
+- **Favoriten verschwinden aus „Alle Anbieter"** und erscheinen dort erst wieder, wenn sie keine Favoriten mehr sind.
+- **Glassmorphismus** sowie **Karten-Schatten, Hover-Zoom und Animationen** wirken jetzt tatsächlich.
+- **Mehr Schriftarten** zur Auswahl; die gewählte Schrift gilt jetzt für **alle** Bedienelemente.
+- **Alle Checkboxen** sehen als moderne Schalter aus.
+
+### Noch offen (siehe ROADMAP.md)
+- Titel-Info mit Trailer & Anbieter-Liste (5), Original-Logos (6), Hintergrundbild (13e), kompletter Profileditor + Admin-PIN-Reset (15b), komplette DE/EN-Übersetzung (13f), Anbieter in der App öffnen (8), CR-Kalender mit Login-Erkennung (9), „Account"-Tab mit aktiven Logins (14).
+
+---
+
 ## [0.4.1] – 2026-05-29
 
 ### Behoben
