@@ -4,6 +4,22 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.10.0] – 2026-05-29
+
+### Hinzugefügt
+- **Profileditor (Punkt 15):** Im Tab *Profile* lassen sich Profile anlegen, umbenennen, löschen und mit PIN schützen – und neu:
+  - **Haupt-Profil selbst wählbar** (★). Es ist **nicht löschbar** und dient als „Anker".
+  - **Separater Admin-Code** (frei wählbar, unabhängig von den Profil-PINs).
+  - **„PIN vergessen?"** – einen vergessenen Profil-PIN über den Admin-Code zurücksetzen.
+
+### Geändert / Behoben
+- **(1) Eingebettete Anbieter:** Da das Einbetten auf einer experimentellen Tauri-Funktion beruht, die sich nicht zuverlässig prüfen lässt, ist **„Eigenes Fenster" jetzt Standard** (funktioniert verlässlich). „Eingebettet" bleibt als Option wählbar.
+- **(2) Desktop-Icon:** Der komplette Icon-Satz (inkl. `icon.ico` in allen Größen) wurde **frisch aus dem App-Logo** erzeugt; nicht benötigte Android-/iOS-Icon-Ordner wurden entfernt.
+
+> Hinweis zum Icon: Falls auf dem Desktop weiterhin ein altes Icon erscheint, liegt das am **Windows-Icon-Cache** einer früheren Installation (siehe Antwort, wie man das löst).
+
+---
+
 ## [0.9.1] – 2026-05-29
 
 ### Behoben

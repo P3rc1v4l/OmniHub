@@ -1,7 +1,7 @@
 # OmniHub – Roadmap
 
 Diese Datei hält den geplanten Funktionsumfang fest und wird **bei jeder Version aktualisiert**.
-Stand: v0.9.0
+Stand: v0.10.0
 
 Legende: ✅ erledigt · 🟡 teilweise · ⏳ geplant · 💡 in Klärung (Machbarkeit)
 
@@ -74,8 +74,14 @@ Legende: ✅ erledigt · 🟡 teilweise · ⏳ geplant · 💡 in Klärung (Mach
 
 ---
 
+## v0.10.0
+- ✅ (15) Profileditor: Haupt-Profil selbst wählbar (nicht löschbar), separater Admin-Code, „PIN vergessen?" per Admin-Code
+- ✅ (1) Stream-Standard auf „Eigenes Fenster" (zuverlässig); „Eingebettet" bleibt optional
+- ✅ (2) Desktop-Icons frisch aus Logo erzeugt; Android-/iOS-Reste entfernt
+
+---
+
 ## Als Nächstes geplant (Reihenfolge laut Wunsch)
-- ⏳ (15/15b) Vollständiger Profileditor; Haupt-Profil SELBST wählbar; vergessene PINs über separaten, frei wählbaren Admin-Code zurücksetzen
 - ⏳ (5) Streams starten nicht: Stream-Modus „Eigenes Fenster" als Notlösung; Ursache der Einbettung mit Konsolen-Ausgabe klären
 - ⏳ (9) Crunchyroll-Release-Kalender (benötigt Datenquelle – CR hat keine offene API)
 - ⏳ (18) Plugin-System (bitte konkretisieren, was die Plugins können sollen)

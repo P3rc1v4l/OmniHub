@@ -3,7 +3,8 @@
 	import { resetProviders } from '$lib/stores/providers';
 	import {
 		profiles, activeProfileId, addProfile, renameProfile, deleteProfile,
-		setPin, clearPin, verifyPin, MAX_PROFILES, MIN_PROFILES
+		setPin, clearPin, verifyPin, MAX_PROFILES, MIN_PROFILES,
+		mainProfileId, setMainProfile, adminCodeHash, setAdminCode, verifyAdminCode, clearAdminCode, resetPinWithAdmin
 	} from '$lib/stores/profiles';
 	import { APP_VERSION, LINKS } from '$lib/version';
 	import { updateState, checkForUpdate } from '$lib/stores/updater';
@@ -87,6 +88,33 @@
 		if (p.pinHash && !(await verifyPin(oldPinInput, p.pinHash))) { pinError = 'Alter PIN ist falsch.'; return; }
 		clearPin(p.id);
 		closePinPanel();
+	}
+
+	// --- Admin-Code (für PIN-Zurücksetzen) ---
+	let adminInput = $state('');
+	let adminMsg = $state('');
+	async function saveAdminCode() {
+		if (adminInput.trim().length < 4) { adminMsg = 'Admin-Code braucht mindestens 4 Zeichen.'; return; }
+		await setAdminCode(adminInput.trim());
+		adminInput = '';
+		adminMsg = 'Admin-Code gespeichert.';
+		pushToast('Admin-Code gespeichert', undefined, '🛡️', 2200);
+	}
+	function removeAdminCode() {
+		clearAdminCode();
+		adminMsg = 'Admin-Code entfernt.';
+	}
+
+	// --- PIN per Admin-Code zurücksetzen ---
+	let resetPinFor = $state<string | null>(null);
+	let resetAdminInput = $state('');
+	let resetMsg = $state('');
+	function openResetPanel(id: string) { resetPinFor = id; resetAdminInput = ''; resetMsg = ''; }
+	function closeResetPanel() { resetPinFor = null; resetAdminInput = ''; resetMsg = ''; }
+	async function doResetPin(id: string) {
+		const ok = await resetPinWithAdmin(id, resetAdminInput.trim());
+		if (ok) { pushToast('PIN zurückgesetzt', 'Du kannst jetzt einen neuen PIN setzen.', '🔓', 2600); closeResetPanel(); }
+		else resetMsg = 'Admin-Code ist falsch.';
 	}
 
 	// Beim Schließen Hinweis zeigen (Einstellungen werden automatisch gespeichert).
@@ -318,9 +346,21 @@
 								<div class="prow">
 									<span class="pav">👤</span>
 									<input class="pname-in" value={p.name} oninput={(e) => renameProfile(p.id, (e.currentTarget as HTMLInputElement).value)} />
+									{#if p.id === $mainProfileId}<span class="pbadge main">★ Haupt</span>{/if}
 									{#if p.id === $activeProfileId}<span class="pbadge">aktiv</span>{/if}
+									{#if p.id !== $mainProfileId}
+										<button class="mini" onclick={() => setMainProfile(p.id)} title="Als Haupt-Profil festlegen">★ Haupt</button>
+									{/if}
 									<button class="mini" onclick={() => openPinPanel(p.id)}>{p.pinHash ? '🔒 PIN ändern' : 'PIN setzen'}</button>
-									<button class="mini danger" disabled={$profiles.length <= MIN_PROFILES} onclick={() => deleteProfile(p.id)} title={$profiles.length <= MIN_PROFILES ? 'Mindestens ein Profil nötig' : 'Profil löschen'}>🗑</button>
+									{#if p.pinHash}
+										<button class="mini" onclick={() => openResetPanel(p.id)} title="PIN vergessen? Mit Admin-Code zurücksetzen">PIN vergessen?</button>
+									{/if}
+									<button
+										class="mini danger"
+										disabled={$profiles.length <= MIN_PROFILES || p.id === $mainProfileId}
+										onclick={() => deleteProfile(p.id)}
+										title={p.id === $mainProfileId ? 'Haupt-Profil ist nicht löschbar' : ($profiles.length <= MIN_PROFILES ? 'Mindestens ein Profil nötig' : 'Profil löschen')}
+									>🗑</button>
 
 									{#if pinEditFor === p.id}
 										<div class="pin-panel">
@@ -334,12 +374,34 @@
 											{#if pinError}<span class="pin-err">{pinError}</span>{/if}
 										</div>
 									{/if}
+
+									{#if resetPinFor === p.id}
+										<div class="pin-panel">
+											<input class="pin-in" type="password" placeholder="Admin-Code" bind:value={resetAdminInput} onkeydown={(e) => e.key === 'Enter' && doResetPin(p.id)} />
+											<button class="mini primary" onclick={() => doResetPin(p.id)}>PIN zurücksetzen</button>
+											<button class="mini" onclick={closeResetPanel}>Abbrechen</button>
+											{#if resetMsg}<span class="pin-err">{resetMsg}</span>{/if}
+											{#if !$adminCodeHash}<span class="pin-err">Es ist noch kein Admin-Code gesetzt (siehe unten).</span>{/if}
+										</div>
+									{/if}
 								</div>
 							{/each}
 						</div>
 						<button class="ghost" disabled={$profiles.length >= MAX_PROFILES} onclick={() => addProfile(`Profil ${$profiles.length + 1}`)}>
 							＋ Profil hinzufügen {#if $profiles.length >= MAX_PROFILES}(max. {MAX_PROFILES}){/if}
 						</button>
+
+						<div class="block" style="margin-top:18px">
+							<div class="block-label">🛡️ Admin-Code (für vergessene PINs)</div>
+							<p class="hint" style="margin-top:0">Ein separater, frei wählbarer Code – unabhängig von Profil-PINs. Damit kannst du oben einen vergessenen Profil-PIN zurücksetzen. Das Haupt-Profil (★) ist nicht löschbar.</p>
+							<div class="admin-row">
+								<input class="pin-in wide" type="password" placeholder={$adminCodeHash ? 'Neuen Admin-Code setzen' : 'Admin-Code festlegen (min. 4)'} bind:value={adminInput} onkeydown={(e) => e.key === 'Enter' && saveAdminCode()} />
+								<button class="mini primary" onclick={saveAdminCode}>{$adminCodeHash ? 'Ändern' : 'Setzen'}</button>
+								{#if $adminCodeHash}<button class="mini danger" onclick={removeAdminCode}>Entfernen</button>{/if}
+							</div>
+							<div class="admin-status">Status: {$adminCodeHash ? '✅ Admin-Code ist gesetzt' : '⚠️ noch kein Admin-Code'}{#if adminMsg} · {adminMsg}{/if}</div>
+						</div>
+
 						<p class="hint">Profil wechseln kannst du unten links über den Profil-Button.</p>
 					{:else}
 						<p class="hint">Dieser Tab wird in einer kommenden Version ausgebaut.</p>
@@ -429,6 +491,10 @@
 	.pbadge { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 3px 8px; border-radius: 999px; }
 	.pin-in { width: 150px; background: var(--bg-elev); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 7px 10px; font-size: 13px; letter-spacing: 3px; font-family: inherit; }
 	.pin-panel { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--border); }
+	.pbadge.main { color: #fbbf24; background: color-mix(in srgb, #fbbf24 18%, transparent); }
+	.pin-in.wide { width: 240px; letter-spacing: normal; }
+	.admin-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+	.admin-status { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
 	.pin-err { color: #f87171; font-size: 12px; }
 	.mini { background: var(--bg-elev); border: 1px solid var(--border); color: var(--text-muted); padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 12.5px; font-family: inherit; }
 	.mini:hover { color: var(--text); border-color: var(--border-strong); }

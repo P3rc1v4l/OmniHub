@@ -20,7 +20,7 @@ export const DEFAULT_SETTINGS: Settings = {
 		particleColor: '#30c5bb',
 		particleShapes: ['circle'],
 		particleSize: 2,
-		streamMode: 'embedded',
+		streamMode: 'window',
 		cardShadow: true,
 		cardHoverZoom: true,
 		animations: true,
