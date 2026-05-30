@@ -6,7 +6,7 @@
 		setPin, clearPin, verifyPin, MAX_PROFILES, MIN_PROFILES,
 		mainProfileId, setMainProfile, adminCodeHash, setAdminCode, verifyAdminCode, clearAdminCode, resetPinWithAdmin
 	} from '$lib/stores/profiles';
-	import { APP_VERSION, LINKS } from '$lib/version';
+	import { APP_VERSION, LINKS, DEFAULT_DISCORD_CLIENT_ID } from '$lib/version';
 	import { updateState, checkForUpdate } from '$lib/stores/updater';
 	import { pushToast } from '$lib/stores/toasts';
 
@@ -473,15 +473,19 @@
 							<div class="plugin-head">
 								<label class="toggle"><input type="checkbox" bind:checked={$settings.plugins.discordEnabled}/> <b>Discord-Status</b></label>
 							</div>
-							<p class="hint">Zeigt auf deinem Discord-Profil „Schaut …" an. Voraussetzung: Discord-App läuft + eigene Discord-Application-ID (Client-ID).</p>
+							<p class="hint">Zeigt auf deinem Discord-Profil „Schaut …" an. <b>Kein Login nötig</b> – es nutzt deine bereits laufende Discord-App. Voraussetzung: Discord-Desktop-App ist offen.</p>
 							{#if $settings.plugins.discordEnabled}
 								<div class="plugin-opts">
-									<label style="flex-basis:100%">Discord Application-ID (Client-ID):
-										<input class="pin-in wide" style="display:block;margin-top:6px" type="text" inputmode="numeric" placeholder="z.B. 1234567890123456789" bind:value={$settings.plugins.discordClientId} />
-									</label>
-									<p class="hint" style="margin-top:4px">
-										Anlegen unter <b>discord.com/developers/applications</b> → „New Application" → die <b>Application ID</b> hierher kopieren. Optional ein Bild als „omnihub" unter Rich Presence → Art Assets hochladen.
-									</p>
+									{#if DEFAULT_DISCORD_CLIENT_ID}
+										<p class="hint" style="margin:0">✅ Es ist eine eingebaute OmniHub-Kennung hinterlegt – du musst nichts weiter eintragen.</p>
+									{:else}
+										<p class="hint" style="margin:0">ℹ️ Es ist noch keine eingebaute OmniHub-Kennung hinterlegt. Bis dahin bleibt der Status leer – oder du trägst unten eine eigene Application-ID ein.</p>
+									{/if}
+									<details style="flex-basis:100%; margin-top:8px">
+										<summary style="cursor:pointer; color:var(--text-muted); font-size:13px">Erweitert: eigene Discord-Application-ID</summary>
+										<input class="pin-in wide" style="display:block; margin-top:8px" type="text" inputmode="numeric" placeholder="optional – z.B. 1234567890123456789" bind:value={$settings.plugins.discordClientId} />
+										<p class="hint" style="margin-top:4px">Nur nötig, wenn keine eingebaute Kennung vorhanden ist oder du eine eigene App verwenden willst. Anlegen unter <b>discord.com/developers/applications</b> → „New Application" → <b>Application ID</b> kopieren.</p>
+									</details>
 								</div>
 							{/if}
 						</div>

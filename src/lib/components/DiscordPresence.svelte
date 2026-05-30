@@ -2,11 +2,17 @@
 	import { settings } from '$lib/stores/settings';
 	import { activeStream } from '$lib/stores/providers';
 	import { discordConnect, discordSetActivity, discordClear, discordDisconnect } from '$lib/discord';
+	import { DEFAULT_DISCORD_CLIENT_ID } from '$lib/version';
 	import { get } from 'svelte/store';
 
 	// Nicht-reaktiver Verbindungszustand (vermeidet Effekt-Schleifen).
 	let connected = false;
 	let lastClientId = '';
+
+	// Eigene ID hat Vorrang, sonst die eingebaute OmniHub-ID.
+	function effectiveId(): string {
+		return (get(settings).plugins.discordClientId || DEFAULT_DISCORD_CLIENT_ID).trim();
+	}
 
 	function updatePresence() {
 		const p = get(settings).plugins;
@@ -22,7 +28,8 @@
 	// Verbindung auf-/abbauen, wenn das Modul oder die Client-ID sich ändert.
 	$effect(() => {
 		const enabled = $settings.plugins.discordEnabled;
-		const clientId = $settings.plugins.discordClientId.trim();
+		void $settings.plugins.discordClientId;
+		const clientId = effectiveId();
 		if (enabled && clientId) {
 			if (!connected || clientId !== lastClientId) {
 				lastClientId = clientId;

@@ -1,5 +1,10 @@
-export const APP_VERSION = '0.12.0';
+export const APP_VERSION = '0.12.2';
 export const APP_NAME = 'OmniHub';
+
+// Eingebaute OmniHub-Discord-Application-ID (öffentliche ID, KEIN Geheimnis).
+// Angelegt im Discord Developer Portal. Nutzer müssen im Discord-Modul nichts
+// eintragen – nur einschalten. Eine eigene ID (Einstellungen) hat Vorrang.
+export const DEFAULT_DISCORD_CLIENT_ID = '1510205731113144481';
 
 export const LINKS = {
 	github: 'https://github.com/P3rc1v4l/OmniHub',

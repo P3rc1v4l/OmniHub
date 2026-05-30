@@ -4,6 +4,20 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.12.2] – 2026-05-29
+
+### Geändert
+- **Eingebaute OmniHub-Discord-Kennung hinterlegt.** Der Discord-Status funktioniert jetzt mit einem **einzigen Schalter** – keine Eingabe nötig. (Eine eigene Application-ID unter „Erweitert" hat weiterhin Vorrang.)
+
+---
+
+## [0.12.1] – 2026-05-29
+
+### Geändert
+- **Discord-Status ohne Code-Eingabe vorbereitet:** Es gibt jetzt einen Platz für eine **eingebaute OmniHub-Discord-Kennung**. Sobald diese hinterlegt ist, müssen Nutzer im Discord-Modul **nichts mehr eintragen** – einfach einschalten. Die eigene Application-ID ist nur noch eine **optionale „Erweitert"-Einstellung**. Klarstellung in der App: Es ist **kein Discord-Login** nötig, es nutzt die laufende Discord-App.
+
+---
+
 ## [0.12.0] – 2026-05-29
 
 ### Hinzugefügt
