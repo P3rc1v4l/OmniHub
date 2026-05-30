@@ -1,7 +1,7 @@
 # OmniHub – Roadmap
 
 Diese Datei hält den geplanten Funktionsumfang fest und wird **bei jeder Version aktualisiert**.
-Stand: v0.12.0
+Stand: v0.13.0
 
 Legende: ✅ erledigt · 🟡 teilweise · ⏳ geplant · 💡 in Klärung (Machbarkeit)
 
@@ -102,7 +102,11 @@ Legende: ✅ erledigt · 🟡 teilweise · ⏳ geplant · 💡 in Klärung (Mach
 
 ---
 
+## v0.13.0
+- ✅ (9) Crunchyroll-Kalender: 7-Tage-Anime-Plan via AniList, Crunchyroll markiert/verlinkt, Filter „Nur Crunchyroll"
+
+---
+
 ## Als Nächstes geplant (Reihenfolge laut Wunsch)
 - ⏳ (5) Streams starten nicht: Stream-Modus „Eigenes Fenster" als Notlösung; Ursache der Einbettung mit Konsolen-Ausgabe klären
-- ⏳ (9) Crunchyroll-Release-Kalender (benötigt Datenquelle – CR hat keine offene API)
 - ⏳ (19) „Mehr"-Menü-Redesign + VPN / Watchlist-Import-Export / WideVine-Status (Machbarkeit – siehe Antwort)

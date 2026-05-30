@@ -2,6 +2,7 @@
 
 mod tmdb;
 mod discord;
+mod anilist;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -25,6 +26,7 @@ pub fn run() {
             discord::discord_set_activity,
             discord::discord_clear,
             discord::discord_disconnect,
+            anilist::anilist_schedule,
         ])
         .run(tauri::generate_context!())
         .expect("Fehler beim Start von OmniHub");

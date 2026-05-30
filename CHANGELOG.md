@@ -4,6 +4,16 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.13.0] – 2026-05-29
+
+### Hinzugefügt
+- **Crunchyroll-Kalender (Punkt 9):** Die Seite „CR Kalender" zeigt jetzt den **Anime-Ausstrahlungsplan der nächsten 7 Tage**, gruppiert nach Tag (Heute/Morgen/Wochentag) mit Cover, Episode und Uhrzeit. Titel auf Crunchyroll sind markiert und direkt verlinkt. Filter **„Nur Crunchyroll"** (Standard an) – ausschaltbar, um alle anstehenden Anime zu sehen.
+  - Datenquelle: **offene AniList-GraphQL-API** (kein Schlüssel nötig), da Crunchyroll keine offene API hat. Backend-Command `anilist_schedule` (reqwest, wie TMDB).
+
+> Hinweis: Die Crunchyroll-Markierung stammt aus AniList-Daten und kann unvollständig sein. Der neue Rust-Command ist – wie TMDB – simpel gehalten, aber erst nach deinem Build endgültig bestätigt.
+
+---
+
 ## [0.12.2] – 2026-05-29
 
 ### Geändert
