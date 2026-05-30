@@ -5,49 +5,48 @@
 	export let provider: Provider;
 	export let size: number = 64;
 
-	// Initialen für Anbieter ohne echtes Logo (Fallback)
+	// Initialen für den allerletzten Notfall (kein Bild, kein SVG, kein Favicon)
 	const overrides: Record<string, string> = {
-		'prime-video': 'P',
-		'disney-plus': 'D+',
-		'paramount-plus': 'P+',
-		'apple-tv-plus': 'tv',
-		'magenta-tv': 'T',
-		'sky-go': 'sky',
-		'ard-mediathek': '1',
-		'zdf-mediathek': 'ZDF',
-		'rtl-plus': 'RTL+',
-		'kika': 'KiKA',
-		'wow': 'W',
-		'mubi': 'm',
-		'max': 'm',
-		'twitch': '◣',
-		'youtube': '▶',
-		'spotify': '♫',
-		'crunchyroll': 'cr',
-		'dazn': 'DA',
-		'funk': 'f',
-		'waipu-tv': 'w',
-		'adn': 'A',
-		'joyn': 'joyn',
-		'netflix': 'N',
-		'arte': 'arte'
+		'prime-video': 'P', 'disney-plus': 'D+', 'paramount-plus': 'P+', 'apple-tv-plus': 'tv',
+		'magenta-tv': 'T', 'sky-go': 'sky', 'ard-mediathek': '1', 'zdf-mediathek': 'ZDF',
+		'rtl-plus': 'RTL+', 'kika': 'KiKA', 'wow': 'W', 'mubi': 'm', 'max': 'm', 'twitch': '◣',
+		'youtube': '▶', 'spotify': '♫', 'crunchyroll': 'cr', 'dazn': 'DA', 'funk': 'f',
+		'waipu-tv': 'w', 'adn': 'A', 'joyn': 'joyn', 'netflix': 'N', 'arte': 'arte'
 	};
+
+	function hostOf(url: string): string | null {
+		try {
+			return new URL(url).hostname.replace(/^www\./, '');
+		} catch {
+			return null;
+		}
+	}
+
+	let faviconFailed = false;
+	// Bei Anbieterwechsel den Fehlerstatus zurücksetzen.
+	$: { void provider.id; faviconFailed = false; }
 
 	$: label = overrides[provider.id] ?? provider.name.slice(0, 2);
 	$: fontSize = Math.max(14, size * 0.45);
-	// Eigenes Logo-Bild (Daten-URL oder http)? -> als Bild zeigen.
 	$: isImage = !!provider.icon && /^(data:|https?:)/i.test(provider.icon);
-	// Echtes Marken-Logo (gebündelte SVG) vorhanden? (nur wenn kein eigenes Bild)
 	$: brandPath = !isImage ? (brandIcons[provider.id] ?? null) : null;
+	$: domain = !isImage && !brandPath ? hostOf(provider.url) : null;
+	$: faviconUrl = domain ? `https://www.google.com/s2/favicons?sz=128&domain=${domain}` : null;
+	$: useFavicon = !!faviconUrl && !faviconFailed;
 </script>
 
 {#if isImage}
-	<img
-		class="logo logo-img"
-		src={provider.icon}
-		alt={provider.name}
-		style="width: {size}px; height: {size}px;"
-	/>
+	<img class="logo logo-img" src={provider.icon} alt={provider.name} style="width: {size}px; height: {size}px;" />
+{:else if useFavicon}
+	<div class="logo fav" style="width: {size}px; height: {size}px;" aria-hidden="true">
+		<img
+			class="fav-img"
+			src={faviconUrl}
+			alt={provider.name}
+			style="width: {size * 0.62}px; height: {size * 0.62}px;"
+			onerror={() => (faviconFailed = true)}
+		/>
+	</div>
 {:else}
 	<div
 		class="logo"
@@ -79,6 +78,9 @@
 	}
 	.logo span { line-height: 1; }
 	.logo .brand { color: #fff; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25)); }
+	/* Favicon-Modus: heller Icon-Hintergrund, damit bunte Favicons immer lesbar sind */
+	.logo.fav { background: #fff; }
+	.fav-img { object-fit: contain; border-radius: 4px; }
 	.logo-img {
 		border-radius: 50%;
 		object-fit: cover;

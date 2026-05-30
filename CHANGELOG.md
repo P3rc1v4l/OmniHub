@@ -4,6 +4,13 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.16.1] – 2026-05-29
+
+### Hinzugefügt
+- **Favicon-Fallback für Anbieter ohne eigenes Logo:** Anbieter ohne gebündeltes Marken-Logo (z.B. Prime Video, Disney+, ARTE, Joyn, WOW …) zeigen jetzt automatisch das **Favicon ihrer Website** (aus der Anbieter-URL abgeleitet) auf einem hellen Icon-Hintergrund. Reihenfolge: eigenes Bild → gebündeltes SVG → Favicon → Buchstabe (nur falls offline/kein Favicon). Gilt auch für selbst hinzugefügte Anbieter.
+
+---
+
 ## [0.16.0] – 2026-05-29
 
 ### Hinzugefügt
