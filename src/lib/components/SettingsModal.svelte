@@ -6,7 +6,7 @@
 		setPin, clearPin, verifyPin, MAX_PROFILES, MIN_PROFILES,
 		mainProfileId, setMainProfile, adminCodeHash, setAdminCode, verifyAdminCode, clearAdminCode, resetPinWithAdmin
 	} from '$lib/stores/profiles';
-	import { APP_VERSION, LINKS, DEFAULT_DISCORD_CLIENT_ID } from '$lib/version';
+	import { APP_VERSION, APP_NAME, LINKS, DEFAULT_DISCORD_CLIENT_ID } from '$lib/version';
 	import { updateState, checkForUpdate } from '$lib/stores/updater';
 	import { pushToast } from '$lib/stores/toasts';
 
@@ -347,19 +347,56 @@
 						<button class="ghost" onclick={() => settings.update((s) => ({ ...s, clock: { ...s.clock, x: null, y: null } }))}>Position zurücksetzen (oben rechts)</button>
 						<p class="hint">Solange dieser Tab offen ist, wird die Uhr <b>ganz vorne</b> angezeigt und du kannst sie mit der Maus <b>verschieben</b> (gestrichelter Rahmen). Bei <b>100&nbsp;% Transparenz</b> wird die Uhr ausgeblendet.</p>
 					{:else if active === 'advanced'}
-						<div class="actions">
-							<button class="ghost" onclick={resetProviders}>Anbieterkarten zurücksetzen</button>
-							<button class="ghost" onclick={() => ($settings.onboardingDone = false)}>Onboarding erneut starten</button>
-							<a class="ghost link" href={LINKS.discord} target="_blank" rel="noreferrer">Discord – Feedback & Support</a>
-							<button class="ghost" disabled={$updateState.checking} onclick={() => checkForUpdate(true)}>
-								{$updateState.checking ? 'Wird geprüft…' : '⬆️ Nach Updates suchen'}
-							</button>
-							<a class="ghost link" href={LINKS.githubReleases} target="_blank" rel="noreferrer">Alle Versionen ansehen</a>
+						<div class="about">
+							<div class="about-logo">👁️</div>
+							<div class="about-tx">
+								<div class="about-name">{APP_NAME}</div>
+								<div class="about-ver">Version {APP_VERSION}</div>
+							</div>
+							{#if $updateState.available}<span class="up-pill">Update v{$updateState.version}</span>{/if}
 						</div>
-						{#if $updateState.available}
-							<p class="hint">Update auf v{$updateState.version} verfügbar – das Banner oben bietet „Herunterladen & installieren".</p>
-						{/if}
-						<p class="hint">VPN, Watchlist-Import/Export und WideVine-Status folgen in einer späteren Version.</p>
+
+						<div class="opt-group">
+							<div class="opt-group-title">Updates</div>
+							<div class="opt">
+								<div class="opt-ic">⬆️</div>
+								<div class="opt-tx2"><div class="opt-t">Nach Updates suchen</div><div class="opt-d">Prüft GitHub auf eine neuere Version.</div></div>
+								<button class="opt-btn" disabled={$updateState.checking} onclick={() => checkForUpdate(true)}>{$updateState.checking ? 'Prüfe…' : 'Suchen'}</button>
+							</div>
+							<a class="opt" href={LINKS.githubReleases} target="_blank" rel="noreferrer">
+								<div class="opt-ic">🗒️</div>
+								<div class="opt-tx2"><div class="opt-t">Alle Versionen</div><div class="opt-d">Changelog & Downloads auf GitHub.</div></div>
+								<span class="opt-btn ghosty">Öffnen ↗</span>
+							</a>
+							{#if $updateState.available}
+								<p class="hint">Update auf v{$updateState.version} verfügbar – das Banner oben bietet „Herunterladen & installieren".</p>
+							{/if}
+						</div>
+
+						<div class="opt-group">
+							<div class="opt-group-title">Daten & Ansicht</div>
+							<div class="opt">
+								<div class="opt-ic">🎴</div>
+								<div class="opt-tx2"><div class="opt-t">Anbieterkarten zurücksetzen</div><div class="opt-d">Stellt die Standard-Anbieter wieder her.</div></div>
+								<button class="opt-btn" onclick={resetProviders}>Zurücksetzen</button>
+							</div>
+							<div class="opt">
+								<div class="opt-ic">👋</div>
+								<div class="opt-tx2"><div class="opt-t">Onboarding erneut starten</div><div class="opt-d">Zeigt die Einführung beim nächsten Mal.</div></div>
+								<button class="opt-btn" onclick={() => ($settings.onboardingDone = false)}>Starten</button>
+							</div>
+						</div>
+
+						<div class="opt-group">
+							<div class="opt-group-title">Hilfe & Feedback</div>
+							<a class="opt" href={LINKS.discord} target="_blank" rel="noreferrer">
+								<div class="opt-ic">💬</div>
+								<div class="opt-tx2"><div class="opt-t">Discord</div><div class="opt-d">Feedback, Hilfe und Neuigkeiten.</div></div>
+								<span class="opt-btn ghosty">Beitreten ↗</span>
+							</a>
+						</div>
+
+						<p class="copyright">© 2026 Luka Kalinka · {APP_NAME}</p>
 					{:else if active === 'account'}
 						<p class="acc-intro">Jedes Profil hat eigene Favoriten, Watchlist, Streamzeit und – beim Streamen – getrennte Logins.</p>
 						<div class="plist">
@@ -536,7 +573,7 @@
 		border-radius: 10px; cursor: pointer; text-align: left; font-size: 13.5px;
 	}
 	nav button:hover { background: var(--bg-card); color: var(--text); }
-	nav button.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+	nav button.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; box-shadow: inset 3px 0 0 var(--accent); }
 	nav button .i { width: 18px; text-align: center; }
 	.version { color: var(--text-dim); font-size: 11px; text-align: center; padding-top: 8px; }
 
@@ -546,9 +583,11 @@
 	.x { background: transparent; border: 0; color: var(--text-muted); font-size: 26px; cursor: pointer; line-height: 1; }
 	.content { padding: 20px 24px; overflow: auto; }
 	.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 18px; }
-	.field { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+	.field { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 13px 15px; display: flex; flex-direction: column; gap: 8px; transition: border-color 0.15s; }
+	.field:hover { border-color: var(--border-strong); }
 	.field > label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
 	.field input[type='range'] { width: 100%; }
+	input[type='range'], input[type='checkbox'] { accent-color: var(--accent); }
 	.field select, .field .hex {
 		width: 100%; background: var(--bg-elev); color: var(--text);
 		border: 1px solid var(--border); padding: 7px 10px; border-radius: 8px; font-size: 13px;
@@ -599,4 +638,25 @@
 	.mini.primary { background: var(--accent); color: var(--accent-text); border: 0; font-weight: 700; }
 	.mini.danger:hover { color: #f87171; border-color: #f87171; }
 	.mini:disabled { opacity: 0.4; cursor: not-allowed; }
+
+	/* Mehr-Tab */
+	.about { display: flex; align-items: center; gap: 14px; background: linear-gradient(135deg, var(--accent-soft), transparent 70%); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 20px; }
+	.about-logo { width: 46px; height: 46px; flex-shrink: 0; border-radius: 12px; background: radial-gradient(circle at 30% 30%, var(--accent), color-mix(in srgb, var(--accent) 45%, #000)); display: grid; place-items: center; font-size: 24px; box-shadow: 0 6px 18px -6px var(--accent); }
+	.about-name { font-size: 18px; font-weight: 800; }
+	.about-ver { font-size: 12.5px; color: var(--text-muted); }
+	.up-pill { margin-left: auto; background: var(--accent); color: var(--accent-text); font-size: 11.5px; font-weight: 700; padding: 5px 11px; border-radius: 999px; }
+	.opt-group { margin-bottom: 18px; }
+	.opt-group-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin: 0 2px 8px; }
+	.opt { display: flex; align-items: center; gap: 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; text-decoration: none; color: var(--text); transition: border-color 0.15s, transform 0.12s; }
+	.opt:hover { border-color: var(--border-strong); }
+	a.opt:hover { transform: translateY(-1px); }
+	.opt-ic { width: 38px; height: 38px; flex-shrink: 0; border-radius: 10px; background: var(--bg-elev); display: grid; place-items: center; font-size: 19px; }
+	.opt-tx2 { flex: 1; min-width: 0; }
+	.opt-t { font-weight: 700; font-size: 14px; }
+	.opt-d { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+	.opt-btn { flex-shrink: 0; background: var(--accent); color: var(--accent-text); border: 0; border-radius: 9px; padding: 8px 15px; font-family: inherit; font-weight: 700; font-size: 12.5px; cursor: pointer; }
+	.opt-btn:hover { filter: brightness(1.08); }
+	.opt-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+	.opt-btn.ghosty { background: var(--bg-elev); color: var(--accent); border: 1px solid var(--border); }
+	.copyright { text-align: center; color: var(--text-dim); font-size: 11.5px; margin-top: 8px; }
 </style>

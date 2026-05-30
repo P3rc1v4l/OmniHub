@@ -4,6 +4,15 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.19.0] – 2026-05-30
+
+### Geändert
+- **Einstellungen optisch überarbeitet:** Die **Schieberegler** (Schriftgröße, Eckenradius, Sidebar-Breite usw.) und Checkboxen sind jetzt in der **Akzentfarbe**. Einstellungskarten haben einen Hover-Effekt, der aktive Tab eine Akzent-Markierung.
+- **„Mehr"-Menü komplett neu gestaltet:** Mit einem Info-Kopf (App + Version), klar gruppierten Bereichen (Updates, Daten & Ansicht, Hilfe) und übersichtlichen Optionskarten mit Symbol, Beschreibung und Knopf.
+- **Bessere Hero-Bildqualität in Neuigkeiten/Upcoming:** Die großen Hintergrundbilder werden jetzt in `w1280` statt `w780` geladen – deutlich schärfer.
+
+---
+
 ## [0.18.3] – 2026-05-30
 
 ### Hinzugefügt

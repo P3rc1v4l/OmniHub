@@ -82,7 +82,13 @@
 	const visible = $derived(items.filter((t) => !isHidden($hiddenTitles, t.id, t.media_type)));
 	const clamped = $derived(visible.length ? Math.min(focused, visible.length - 1) : 0);
 	const hero = $derived(visible[clamped] ?? null);
-	const heroImg = $derived(hero ? (hero.backdrop ?? hero.poster ?? '') : '');
+	// Backdrop in höherer Auflösung laden (TMDB liefert per URL verschiedene Größen).
+	// w780 -> w1280 macht das Vollbild deutlich schärfer.
+	function hiRes(url: string | null): string {
+		if (!url) return '';
+		return url.replace(/\/t\/p\/w\d+\//, '/t/p/w1280/');
+	}
+	const heroImg = $derived(hero ? hiRes(hero.backdrop ?? hero.poster) : '');
 	const heroRating = $derived(hero?.vote_average ? hero.vote_average.toFixed(1) : null);
 
 	// Fokussiertes Poster in Sicht scrollen.
