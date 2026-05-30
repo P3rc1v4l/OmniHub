@@ -1,6 +1,6 @@
 [package]
 name = "omnihub"
-version = "0.18.1"
+version = "0.18.2"
 description = "OmniHub – zentraler Streaming-Hub"
 authors = ["P3rc1v4l"]
 edition = "2021"

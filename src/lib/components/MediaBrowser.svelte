@@ -81,6 +81,7 @@
 	const clamped = $derived(visible.length ? Math.min(focused, visible.length - 1) : 0);
 	const hero = $derived(visible[clamped] ?? null);
 	const heroImg = $derived(hero ? (hero.backdrop ?? hero.poster ?? '') : '');
+	const heroRating = $derived(hero?.vote_average ? hero.vote_average.toFixed(1) : null);
 
 	// Fokussiertes Poster in Sicht scrollen.
 	$effect(() => {
@@ -170,6 +171,19 @@
 			<button class="open" onclick={openHero} title="Details anzeigen" aria-label={`Infos zu ${hero.title}`}></button>
 			<button class="nav left" onclick={() => go(-1)} aria-label="Vorheriger Titel">‹</button>
 			<button class="nav right" onclick={() => go(1)} aria-label="Nächster Titel">›</button>
+
+			{#key hero.media_type + '-' + hero.id}
+				<div class="info">
+					<h2 class="htitle">{hero.title}</h2>
+					<div class="meta">
+						{#if heroRating}<span class="rate">★ {heroRating}</span>{/if}
+						{#if year(hero.release_date)}<span>{year(hero.release_date)}</span>{/if}
+						<span>{hero.media_type === 'tv' ? 'Serie' : 'Film'}</span>
+					</div>
+					{#if hero.overview}<p class="desc">{hero.overview}</p>{/if}
+					<button class="details" onclick={openHero}>Details ansehen</button>
+				</div>
+			{/key}
 		{/if}
 	</div>
 
@@ -223,12 +237,21 @@
 	.back { position: absolute; inset: 0; background-size: cover; background-position: center 18%; }
 	.shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,12,16,0.25) 0%, rgba(11,12,16,0.12) 45%, rgba(11,12,16,0.85) 100%); }
 	.open { position: absolute; inset: 0; z-index: 2; background: none; border: 0; cursor: pointer; }
-	.nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 3; width: 42px; height: 66px; border-radius: 10px; background: rgba(0,0,0,0.32); border: 0; color: #fff; font-size: 30px; line-height: 1; cursor: pointer; display: grid; place-items: center; transition: background 0.15s; }
+	.nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 5; width: 42px; height: 66px; border-radius: 10px; background: rgba(0,0,0,0.32); border: 0; color: #fff; font-size: 30px; line-height: 1; cursor: pointer; display: grid; place-items: center; transition: background 0.15s; }
 	.nav.left { left: 14px; }
 	.nav.right { right: 14px; }
 	.nav:hover { background: rgba(0,0,0,0.6); }
 	.state { position: absolute; inset: 0; display: grid; place-items: center; color: var(--text-muted); padding: 24px; text-align: center; }
 	.state.err { color: #fca5a5; max-width: 640px; margin: 0 auto; }
+
+	.info { position: absolute; left: 48px; right: 48px; bottom: 26px; z-index: 3; max-width: 640px; animation: heroFade 0.45s ease; }
+	.htitle { margin: 0 0 8px; font-size: 30px; font-weight: 800; line-height: 1.1; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65); }
+	.meta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; font-size: 13px; color: rgba(255, 255, 255, 0.9); margin-bottom: 10px; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6); }
+	.rate { color: #facc15; font-weight: 800; }
+	.desc { margin: 0 0 14px; font-size: 14px; line-height: 1.5; color: rgba(255, 255, 255, 0.88); display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55); }
+	.details { background: var(--accent); color: #00110f; border: 0; border-radius: 9px; padding: 9px 18px; font-family: inherit; font-weight: 700; font-size: 13.5px; cursor: pointer; }
+	.details:hover { filter: brightness(1.08); }
+	@keyframes heroFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 	.strip { display: flex; gap: 14px; overflow-x: auto; padding: 14px 20px 4px; }
 	.cell { flex: 0 0 132px; width: 132px; }

@@ -4,6 +4,13 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.18.2] – 2026-05-30
+
+### Hinzugefügt
+- **Mehr Infos im Hero:** Neuigkeiten/Upcoming zeigen unten links jetzt **Titel**, **Bewertung** (★), **Jahr & Typ** sowie eine **Kurzbeschreibung** (3 Zeilen) des aktuellen Titels – mit sanftem Einblenden beim Wechsel. Ein **„Details ansehen"**-Knopf öffnet die vollen Infos.
+
+---
+
 ## [0.18.1] – 2026-05-30
 
 ### Hinzugefügt
