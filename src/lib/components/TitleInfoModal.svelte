@@ -34,18 +34,18 @@
 	// passend zu den Anbieter-Kacheln in OmniHub). Unbekannte -> JustWatch-Link des Titels.
 	const PROVIDER_MAP: Record<string, { id: string; url: (t: string) => string }> = {
 		'Netflix': { id: 'netflix', url: (t) => `https://www.netflix.com/search?q=${encodeURIComponent(t)}` },
-		'Amazon Prime Video': { id: 'prime', url: (t) => `https://www.amazon.de/s?k=${encodeURIComponent(t)}&i=instant-video` },
-		'Amazon Video': { id: 'prime', url: (t) => `https://www.amazon.de/s?k=${encodeURIComponent(t)}&i=instant-video` },
-		'Disney Plus': { id: 'disney', url: (t) => `https://www.disneyplus.com/search?q=${encodeURIComponent(t)}` },
+		'Amazon Prime Video': { id: 'prime-video', url: (t) => `https://www.amazon.de/s?k=${encodeURIComponent(t)}&i=instant-video` },
+		'Amazon Video': { id: 'prime-video', url: (t) => `https://www.amazon.de/s?k=${encodeURIComponent(t)}&i=instant-video` },
+		'Disney Plus': { id: 'disney-plus', url: (t) => `https://www.disneyplus.com/search?q=${encodeURIComponent(t)}` },
 		'Crunchyroll': { id: 'crunchyroll', url: (t) => `https://www.crunchyroll.com/search?q=${encodeURIComponent(t)}` },
 		'WOW': { id: 'wow', url: () => 'https://www.wowtv.de/' },
-		'Apple TV Plus': { id: 'appletv', url: (t) => `https://tv.apple.com/search?term=${encodeURIComponent(t)}` },
-		'Apple TV': { id: 'appletv', url: (t) => `https://tv.apple.com/search?term=${encodeURIComponent(t)}` },
-		'RTL+': { id: 'rtlplus', url: (t) => `https://plus.rtl.de/suche?q=${encodeURIComponent(t)}` },
+		'Apple TV Plus': { id: 'apple-tv-plus', url: (t) => `https://tv.apple.com/search?term=${encodeURIComponent(t)}` },
+		'Apple TV': { id: 'apple-tv-plus', url: (t) => `https://tv.apple.com/search?term=${encodeURIComponent(t)}` },
+		'RTL+': { id: 'rtl-plus', url: (t) => `https://plus.rtl.de/suche?q=${encodeURIComponent(t)}` },
 		'Joyn': { id: 'joyn', url: (t) => `https://www.joyn.de/suche?q=${encodeURIComponent(t)}` },
 		'Joyn Plus': { id: 'joyn', url: (t) => `https://www.joyn.de/suche?q=${encodeURIComponent(t)}` },
-		'MagentaTV': { id: 'magenta', url: () => 'https://web.magentatv.de/' },
-		'Paramount Plus': { id: 'paramount', url: (t) => `https://www.paramountplus.com/search/?query=${encodeURIComponent(t)}` },
+		'MagentaTV': { id: 'magenta-tv', url: () => 'https://web.magentatv.de/' },
+		'Paramount Plus': { id: 'paramount-plus', url: (t) => `https://www.paramountplus.com/search/?query=${encodeURIComponent(t)}` },
 		'YouTube': { id: 'youtube', url: (t) => `https://www.youtube.com/results?search_query=${encodeURIComponent(t)}` }
 	};
 	function resolveTarget(name: string, title: string, fallback: string | null): { url: string; id: string } {

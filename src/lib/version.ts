@@ -1,4 +1,4 @@
-export const APP_VERSION = '0.15.2';
+export const APP_VERSION = '0.16.0';
 export const APP_NAME = 'OmniHub';
 
 // Eingebaute OmniHub-Discord-Application-ID (öffentliche ID, KEIN Geheimnis).

@@ -1,10 +1,11 @@
 <script lang="ts">
 	import type { Provider } from '$lib/types';
+	import { brandIcons } from '$lib/data/brandIcons';
 
 	export let provider: Provider;
 	export let size: number = 64;
 
-	// Initialen bestimmen: spezielle Vorgaben aus dem Screenshot
+	// Initialen für Anbieter ohne echtes Logo (Fallback)
 	const overrides: Record<string, string> = {
 		'prime-video': 'P',
 		'disney-plus': 'D+',
@@ -34,8 +35,10 @@
 
 	$: label = overrides[provider.id] ?? provider.name.slice(0, 2);
 	$: fontSize = Math.max(14, size * 0.45);
-	// Eigenes Logo-Bild (Daten-URL oder http)? -> als Bild zeigen, sonst Buchstaben.
+	// Eigenes Logo-Bild (Daten-URL oder http)? -> als Bild zeigen.
 	$: isImage = !!provider.icon && /^(data:|https?:)/i.test(provider.icon);
+	// Echtes Marken-Logo (gebündelte SVG) vorhanden? (nur wenn kein eigenes Bild)
+	$: brandPath = !isImage ? (brandIcons[provider.id] ?? null) : null;
 </script>
 
 {#if isImage}
@@ -51,7 +54,13 @@
 		style="--bg1: {provider.color}; --bg2: {provider.color2 ?? provider.color}; width: {size}px; height: {size}px; font-size: {fontSize}px;"
 		aria-hidden="true"
 	>
-		<span>{label}</span>
+		{#if brandPath}
+			<svg class="brand" viewBox="0 0 24 24" style="width: {size * 0.52}px; height: {size * 0.52}px;" aria-hidden="true">
+				<path d={brandPath} fill="currentColor" />
+			</svg>
+		{:else}
+			<span>{label}</span>
+		{/if}
 	</div>
 {/if}
 
@@ -69,6 +78,7 @@
 		flex-shrink: 0;
 	}
 	.logo span { line-height: 1; }
+	.logo .brand { color: #fff; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25)); }
 	.logo-img {
 		border-radius: 50%;
 		object-fit: cover;

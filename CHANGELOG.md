@@ -4,6 +4,17 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.16.0] – 2026-05-29
+
+### Hinzugefügt
+- **Echte Anbieter-Logos** statt Buchstaben: 15 Marken-Logos (Netflix, Apple TV+, Paramount+, MUBI, Sky, MagentaTV, Crunchyroll, Twitch, DAZN, YouTube, Spotify, ARD, ZDF, RTL+, Max) sind als **gebündelte SVGs** (Quelle: Simple Icons, CC0) fest in der App – **offline verfügbar**, scharf und einheitlich, weiß auf der Marken-Farbe.
+- Anbieter ohne hinterlegtes Logo (z.B. Prime Video, Disney+ – von Simple Icons nicht mehr angeboten, sowie einige deutsche Sender) behalten ihr **Text-Logo**. Für diese kannst du über den **Stift auf der Kachel → Logo hochladen** jederzeit ein eigenes Bild setzen.
+
+### Behoben
+- Im Titel-Info-Fenster wurden bei einigen Anbietern (Prime Video, Disney+, Apple TV+, Paramount+, RTL+, MagentaTV) die **falschen internen IDs** verwendet – dadurch wird die **Anmelde-Sitzung** jetzt korrekt mit der jeweiligen Kachel geteilt.
+
+---
+
 ## [0.15.2] – 2026-05-29
 
 ### Hinzugefügt
