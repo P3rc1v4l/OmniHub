@@ -1,6 +1,6 @@
 {
   "name": "omnihub",
-  "version": "0.19.0",
+  "version": "0.19.1",
   "description": "OmniHub – zentraler Streaming-Hub als Desktop-App (Tauri v2 + SvelteKit)",
   "type": "module",
   "private": true,

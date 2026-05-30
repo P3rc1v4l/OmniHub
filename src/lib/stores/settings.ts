@@ -3,6 +3,9 @@ import { browser } from '$app/environment';
 import type { Settings } from '$lib/types';
 import { loadState, saveState } from '$lib/persistence';
 
+// Steuert, ob das Onboarding-Fenster offen ist (kann von überall ausgelöst werden).
+export const onboardingOpen = writable(false);
+
 export const DEFAULT_SETTINGS: Settings = {
 	appearance: {
 		backgroundImage: null,

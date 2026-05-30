@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { settings, clockEditing, DEFAULT_SETTINGS } from '$lib/stores/settings';
+	import { settings, clockEditing, DEFAULT_SETTINGS, onboardingOpen } from '$lib/stores/settings';
 	import { resetProviders } from '$lib/stores/providers';
 	import {
 		profiles, activeProfileId, addProfile, renameProfile, deleteProfile,
@@ -383,7 +383,7 @@
 							<div class="opt">
 								<div class="opt-ic">👋</div>
 								<div class="opt-tx2"><div class="opt-t">Onboarding erneut starten</div><div class="opt-d">Zeigt die Einführung beim nächsten Mal.</div></div>
-								<button class="opt-btn" onclick={() => ($settings.onboardingDone = false)}>Starten</button>
+								<button class="opt-btn" onclick={() => { close(); onboardingOpen.set(true); }}>Starten</button>
 							</div>
 						</div>
 

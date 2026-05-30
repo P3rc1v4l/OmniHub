@@ -10,6 +10,8 @@
 	let profileName = $state('Profil 1');
 	let providersList = $state<Provider[]>([]);
 	$effect(() => { providersList = $providers; });
+	// Beim Öffnen immer von vorn beginnen.
+	$effect(() => { if (open) step = 0; });
 
 	const accents = ['#30c5bb', '#ff5d3b', '#7c5cff', '#22c55e', '#f59e0b', '#ec4899'];
 

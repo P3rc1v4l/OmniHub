@@ -17,7 +17,7 @@
 	import UpdateBanner from '$lib/components/UpdateBanner.svelte';
 	import NotificationCenter from '$lib/components/NotificationCenter.svelte';
 	import { checkForUpdate } from '$lib/stores/updater';
-	import { settings, hydrateSettings, applySettings } from '$lib/stores/settings';
+	import { settings, hydrateSettings, applySettings, onboardingOpen } from '$lib/stores/settings';
 	import { hydrateCatalog } from '$lib/stores/providers';
 	import { hydrateProfiles, loadProfileData, activeProfileId } from '$lib/stores/profiles';
 	import { achievements, maybeNotify } from '$lib/stores/achievements';
@@ -28,7 +28,6 @@
 	let showSettings = $state(false);
 	let settingsTab = $state('appearance');
 	let showShortcuts = $state(false);
-	let showOnboarding = $state(false);
 
 	function openSettings(tab = 'appearance') {
 		settingsTab = tab;
@@ -47,7 +46,7 @@
 			if (pid) await loadProfileData(pid);
 		} catch (e) { console.error('[init] profileData', e); }
 
-		if (!get(settings).onboardingDone) showOnboarding = true;
+		if (!get(settings).onboardingDone) onboardingOpen.set(true);
 		window.addEventListener('keydown', onKey);
 
 		// Automatisch beim Start nach einem Update suchen (still; Fehler werden geschluckt).
@@ -92,7 +91,7 @@
 
 <SettingsModal open={showSettings} initialTab={settingsTab} close={() => (showSettings = false)} />
 <ShortcutsModal open={showShortcuts} close={() => (showShortcuts = false)} />
-<OnboardingModal open={showOnboarding} close={() => (showOnboarding = false)} />
+<OnboardingModal open={$onboardingOpen} close={() => onboardingOpen.set(false)} />
 <CardEditorModal />
 <SleepTimer />
 <DiscordPresence />

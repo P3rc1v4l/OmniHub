@@ -4,6 +4,14 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.19.1] – 2026-05-30
+
+### Geändert
+- **Hero-Bilder in maximaler Qualität:** Die Hintergrundbilder in Neuigkeiten/Upcoming laden jetzt in `original` statt `w1280` – schärfstmöglich.
+- **Onboarding-Neustart:** „Einstellungen → Mehr → Onboarding starten" **schließt jetzt die Einstellungen** und startet das Onboarding sofort wieder – immer von Schritt 1.
+
+---
+
 ## [0.19.0] – 2026-05-30
 
 ### Geändert

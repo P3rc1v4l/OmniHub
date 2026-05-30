@@ -82,11 +82,11 @@
 	const visible = $derived(items.filter((t) => !isHidden($hiddenTitles, t.id, t.media_type)));
 	const clamped = $derived(visible.length ? Math.min(focused, visible.length - 1) : 0);
 	const hero = $derived(visible[clamped] ?? null);
-	// Backdrop in höherer Auflösung laden (TMDB liefert per URL verschiedene Größen).
-	// w780 -> w1280 macht das Vollbild deutlich schärfer.
+	// Backdrop in höchster Auflösung laden (TMDB liefert per URL verschiedene Größen).
+	// "original" = maximale Qualität fürs Vollbild.
 	function hiRes(url: string | null): string {
 		if (!url) return '';
-		return url.replace(/\/t\/p\/w\d+\//, '/t/p/w1280/');
+		return url.replace(/\/t\/p\/w\d+\//, '/t/p/original/');
 	}
 	const heroImg = $derived(hero ? hiRes(hero.backdrop ?? hero.poster) : '');
 	const heroRating = $derived(hero?.vote_average ? hero.vote_average.toFixed(1) : null);
