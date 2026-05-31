@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy, tick } from 'svelte';
+	import { get } from 'svelte/store';
 	import { goto } from '$app/navigation';
 	import { activeStream } from '$lib/stores/providers';
 	import { watchTime, sessionStart, formatDuration } from '$lib/stores/tracking';
@@ -10,7 +11,22 @@
 	let host = $state<HTMLDivElement | null>(null);
 	let now = $state(Date.now());
 
+	// Vollbild: schmaler Streifen oben zum Einblenden der Leiste; Höhe der Leiste.
+	const REVEAL_STRIP = 2;
+	const BAR_H = 46;
+	let barRevealed = $state(false);
+
 	function rectOf(): Rect | null {
+		// Im Vollbild füllt das Webview das ganze Fenster (randlos). Ist die Leiste
+		// ausgeblendet, bleibt nur ein winziger Streifen oben frei, damit OmniHub die
+		// Maus am oberen Rand erkennen kann; ist sie eingeblendet, beginnt das Video
+		// unter der Leiste.
+		if (get(immersive)) {
+			const W = window.innerWidth;
+			const H = window.innerHeight;
+			const top = barRevealed ? BAR_H : REVEAL_STRIP;
+			return { x: 0, y: top, width: W, height: H - top };
+		}
 		if (!host) return null;
 		const r = host.getBoundingClientRect();
 		return { x: r.left, y: r.top, width: r.width, height: r.height };
@@ -49,12 +65,18 @@
 		if ($activeStream) refresh();
 	});
 
-	// Immersiv-Wechsel: Oberfläche blendet sich aus/ein -> Webview an die neue
-	// (größere/kleinere) Fläche anpassen, sobald das Layout neu gezeichnet ist.
+	// Immersiv-/Reveal-Wechsel: Oberfläche bzw. Leiste ändert sich -> Webview an die
+	// neue Fläche anpassen, sobald das Layout neu gezeichnet ist.
 	$effect(() => {
 		$immersive;
+		barRevealed;
 		if (!$activeStream) return;
 		tick().then(() => requestAnimationFrame(() => onResize()));
+	});
+
+	// Verlässt man den Vollbildmodus, die Leiste wieder „normal" zeigen.
+	$effect(() => {
+		if (!$immersive) barRevealed = false;
 	});
 
 	const liveMs = $derived.by(() => {
@@ -79,7 +101,21 @@
 			<p class="muted">Aktuell ist kein Stream geöffnet. Öffne einen Anbieter über die Übersicht.</p>
 		</div>
 	{:else}
-		<div class="bar">
+		{#if $immersive}
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<div
+				class="reveal-strip"
+				onmouseenter={() => (barRevealed = true)}
+				onmousemove={() => (barRevealed = true)}
+			></div>
+		{/if}
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div
+			class="bar"
+			class:imm={$immersive}
+			class:revealed={barRevealed}
+			onmouseleave={() => { if ($immersive) barRevealed = false; }}
+		>
 			<Logo provider={$activeStream} size={26} />
 			<div class="info">
 				<span class="nm">{$activeStream.name}</span>
@@ -118,6 +154,18 @@
 		padding: 10px 18px; border-bottom: 1px solid var(--border);
 		background: var(--bg-elev); flex-shrink: 0;
 	}
+	/* Vollbild: Leiste als schwebendes Overlay, das von oben einfährt. */
+	.bar.imm {
+		position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+		border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+		background: color-mix(in srgb, var(--bg-elev) 92%, transparent);
+		backdrop-filter: blur(8px);
+		transform: translateY(-100%);
+		transition: transform 0.18s ease;
+		box-shadow: 0 8px 24px -10px rgba(0, 0, 0, 0.7);
+	}
+	.bar.imm.revealed { transform: translateY(0); }
+	.reveal-strip { position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 49; }
 	.info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
 	.nm { font-weight: 700; font-size: 14px; }
 	.sub { color: var(--text-muted); font-size: 12px; }

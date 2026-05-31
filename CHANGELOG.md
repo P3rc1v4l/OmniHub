@@ -4,6 +4,19 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.26.0] – 2026-05-31
+
+### Geändert / Hinzugefügt
+- **Randloses Vollbild (#1/#3).** Im Vollbild füllt das Stream-Video jetzt das ganze Fenster – auch über die obere Leiste hinweg, oben wie unten randlos.
+- **Leiste per Maus einblenden.** Maus an den oberen Bildschirmrand schieben → die Leiste (mit „Vollbild beenden"/„Schließen") fährt von oben ein und bleibt, solange die Maus darüber ist. Sonst bleibt sie unsichtbar.
+- **Esc beendet das Vollbild.** Über einen globalen Tastenkürzel (neues Plugin `global-shortcut`), da der Stream den Tastatur-Fokus hat. Esc wird nur während des Vollbilds registriert und danach wieder freigegeben.
+
+### Technisch
+- Neues Plugin `tauri-plugin-global-shortcut` (+ JS-Paket) und Berechtigungen `global-shortcut:register/unregister/is-registered`.
+- Vollbild lässt einen 2px-Streifen oben frei – nötig, damit OmniHub die Maus am oberen Rand erkennt (Alternative wäre, der Streaming-Seite Tauri-Zugriff zu geben – das wäre unsicher).
+
+---
+
 ## [0.25.0] – 2026-05-31
 
 ### Hinzugefügt

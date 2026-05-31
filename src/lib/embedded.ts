@@ -186,6 +186,31 @@ export async function unhideEmbedded(): Promise<void> {
 	}
 }
 
+// Esc als globalen Shortcut, um den Vollbildmodus zu verlassen – nötig, weil der
+// Stream (natives Webview) den Tastatur-Fokus hat und OmniHub sonst kein Esc bekäme.
+async function registerEscExit(): Promise<void> {
+	if (!browser) return;
+	try {
+		const gs = await import('@tauri-apps/plugin-global-shortcut');
+		if (!(await gs.isRegistered('Escape'))) {
+			await gs.register('Escape', (e: { state?: string }) => {
+				if (!e || e.state === 'Pressed') void setImmersive(false);
+			});
+		}
+	} catch {
+		/* ignore */
+	}
+}
+async function unregisterEscExit(): Promise<void> {
+	if (!browser) return;
+	try {
+		const gs = await import('@tauri-apps/plugin-global-shortcut');
+		if (await gs.isRegistered('Escape')) await gs.unregister('Escape');
+	} catch {
+		/* ignore */
+	}
+}
+
 // Vollbild umschalten: OmniHub-Oberfläche ausblenden (über den Store) und das
 // Fenster in den OS-Vollbild setzen, damit der Stream alles ausfüllt.
 export async function setImmersive(on: boolean): Promise<void> {
@@ -197,6 +222,8 @@ export async function setImmersive(on: boolean): Promise<void> {
 	} catch {
 		/* ignore */
 	}
+	if (on) await registerEscExit();
+	else await unregisterEscExit();
 }
 
 export async function closeEmbedded(): Promise<void> {
