@@ -4,6 +4,7 @@
 	import { settings } from '$lib/stores/settings';
 	import { notifCenterOpen } from '$lib/stores/toasts';
 	import ProfileSwitcher from './ProfileSwitcher.svelte';
+	import SleepCountdown from './SleepCountdown.svelte';
 
 	export let openSettings: () => void;
 	export let openProfiles: () => void;
@@ -40,6 +41,7 @@
 	</nav>
 
 	<div class="bottom">
+		<SleepCountdown />
 		<a href="/cr-calendar" class="nav-item" class:active={path === '/cr-calendar'}>
 			<span class="icon">⛩️</span><span>CR Kalender</span>
 		</a>

@@ -166,6 +166,22 @@ export async function hideEmbedded(): Promise<void> {
 	}
 }
 
+// Zeigt das aktuell eingebettete Webview wieder an (z.B. nachdem die
+// Einstellungen geschlossen wurden, die es vorübergehend verdeckt hätten).
+export async function unhideEmbedded(): Promise<void> {
+	if (!browser || !currentLabel || usingFallback) return;
+	try {
+		const { webview } = await getWebviewApi();
+		const wv = await webview.Webview.getByLabel(currentLabel);
+		if (wv) {
+			await wv.show();
+			await wv.setFocus();
+		}
+	} catch {
+		/* ignore */
+	}
+}
+
 export async function closeEmbedded(): Promise<void> {
 	if (!browser) return;
 	if (currentLabel && !usingFallback) {

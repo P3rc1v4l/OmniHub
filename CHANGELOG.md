@@ -4,6 +4,21 @@ Alle nennenswerten Änderungen an OmniHub werden hier dokumentiert.
 Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/),
 Versionierung nach [SemVer](https://semver.org/lang/de/).
 
+## [0.24.0] – 2026-05-31
+
+### Behoben
+- **Drag & Drop der Anbieterkarten funktioniert wieder (#5).** Ursache: Das native Drag&Drop des Fensters fing die Maus-Events ab und blockierte das HTML5-Ziehen (bekanntes WebView2-Verhalten unter Windows). Über `dragDropEnabled: false` in der Fenster-Konfiguration ist das jetzt freigegeben – das Ziehen der ganzen Karte klappt damit in Übersicht und Favoriten.
+- **Einstellungen erscheinen jetzt vor dem Stream (#2).** Beim Öffnen der Einstellungen wird der eingebettete Stream (natives Webview, liegt über dem HTML) kurz ausgeblendet und nach dem Schließen automatisch wieder eingeblendet.
+
+### Geändert
+- **Sleep-Timer-Countdown in der Seitenleiste (#1).** Der Countdown sitzt jetzt unten in der Seitenleiste – ein Bereich, der nie vom Stream-Webview verdeckt wird, also auch während eines laufenden Streams sichtbar bleibt. Klick bricht den Timer weiterhin ab.
+- **Roadmap erweitert (#7):** neue Vorschläge zu Technik, Sicherheit, Funktionen und UI.
+
+### Hinweis
+- Vollbild für Streams (#3) und Hardware-Beschleunigung umschalten (#4) erfordern native Anpassungen (Rust/Fenster) und sind als nächste Schritte in der Roadmap eingetragen. Die optische Überarbeitung der Einstellungen (#6) folgt als eigener Schritt.
+
+---
+
 ## [0.23.0] – 2026-05-30
 
 ### Hinzugefügt

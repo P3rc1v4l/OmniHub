@@ -8,7 +8,6 @@
 	import OnboardingModal from '$lib/components/OnboardingModal.svelte';
 	import CardEditorModal from '$lib/components/CardEditorModal.svelte';
 	import SleepTimer from '$lib/components/SleepTimer.svelte';
-	import SleepCountdown from '$lib/components/SleepCountdown.svelte';
 	import DiscordPresence from '$lib/components/DiscordPresence.svelte';
 	import TitleInfoModal from '$lib/components/TitleInfoModal.svelte';
 	import HiddenTitlesModal from '$lib/components/HiddenTitlesModal.svelte';
@@ -18,6 +17,7 @@
 	import UpdateBanner from '$lib/components/UpdateBanner.svelte';
 	import NotificationCenter from '$lib/components/NotificationCenter.svelte';
 	import { checkForUpdate } from '$lib/stores/updater';
+	import { hideEmbedded, unhideEmbedded } from '$lib/embedded';
 	import { settings, hydrateSettings, applySettings, onboardingOpen } from '$lib/stores/settings';
 	import { hydrateCatalog } from '$lib/stores/providers';
 	import { hydrateProfiles, loadProfileData, activeProfileId } from '$lib/stores/profiles';
@@ -33,6 +33,13 @@
 	function openSettings(tab = 'appearance') {
 		settingsTab = tab;
 		showSettings = true;
+		// Eingebetteter Stream liegt als natives Webview über dem HTML – fürs
+		// Einstellungsfenster kurz ausblenden, danach wieder einblenden.
+		void hideEmbedded();
+	}
+	function closeSettings() {
+		showSettings = false;
+		void unhideEmbedded();
 	}
 
 	onMount(async () => {
@@ -62,7 +69,7 @@
 
 	function onKey(e: KeyboardEvent) {
 		const inField = (e.target as HTMLElement)?.matches?.('input,textarea,select');
-		if (e.key === 'Escape') { showSettings = false; showShortcuts = false; return; }
+		if (e.key === 'Escape') { if (showSettings) closeSettings(); showShortcuts = false; return; }
 		if (inField) return;
 		if (e.key === 'F1') { e.preventDefault(); showShortcuts = true; }
 		else if (e.key === ',' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); openSettings(); }
@@ -90,12 +97,11 @@
 <Toasts />
 <NotificationCenter />
 
-<SettingsModal open={showSettings} initialTab={settingsTab} close={() => (showSettings = false)} />
+<SettingsModal open={showSettings} initialTab={settingsTab} close={closeSettings} />
 <ShortcutsModal open={showShortcuts} close={() => (showShortcuts = false)} />
 <OnboardingModal open={$onboardingOpen} close={() => onboardingOpen.set(false)} />
 <CardEditorModal />
 <SleepTimer />
-<SleepCountdown />
 <DiscordPresence />
 <TitleInfoModal />
 <HiddenTitlesModal />

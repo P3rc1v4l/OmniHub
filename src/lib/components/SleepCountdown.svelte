@@ -37,27 +37,26 @@
 
 <style>
 	.sleep {
-		position: fixed;
-		right: 18px;
-		bottom: 18px;
-		z-index: 60;
-		display: inline-flex;
+		display: flex;
 		align-items: center;
+		justify-content: center;
 		gap: 8px;
-		background: var(--bg-elev);
-		border: 1px solid var(--border);
+		width: 100%;
+		box-sizing: border-box;
+		margin: 0 0 8px;
+		background: var(--accent-soft);
+		border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
 		color: var(--text);
-		border-radius: 999px;
-		padding: 8px 14px;
+		border-radius: 10px;
+		padding: 9px 12px;
 		font-family: inherit;
 		font-size: 13px;
 		font-weight: 700;
 		cursor: pointer;
-		box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.6);
 		font-variant-numeric: tabular-nums;
-		transition: border-color 0.15s;
+		transition: border-color 0.15s, background 0.15s;
 	}
-	.sleep:hover { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+	.sleep:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 22%, transparent); }
 	.t { color: var(--accent); }
 	.x { font-size: 11px; color: var(--text-muted); opacity: 0; transition: opacity 0.15s; }
 	.sleep:hover .x { opacity: 1; }

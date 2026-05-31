@@ -1,9 +1,41 @@
 # OmniHub – Roadmap
 
 Diese Datei hält den geplanten Funktionsumfang fest und wird **bei jeder Version aktualisiert**.
-Stand: v0.15.0
+Stand: v0.24.0
 
 Legende: ✅ erledigt · 🟡 teilweise · ⏳ geplant · 💡 in Klärung (Machbarkeit)
+
+---
+
+## 🆕 Neue Vorschläge (Stand v0.24.0)
+
+### Technisch
+- ⏳ **Echtes Vollbild für eingebettete Streams.** Das eingebettete Anbieter-Fenster ist ein natives Webview – sein Vollbild ist auf sein Rechteck begrenzt. Lösung: Fullscreen-Anfrage der Seite per Rust-Event abfangen **oder** ein OmniHub-Vollbild-Schalter, der das Webview auf Fenstergröße zieht und das Fenster in den OS-Vollbild setzt. Beenden über globales Tastenkürzel (Esc/F11), da das Webview den Fokus hat.
+- ⏳ **Hardware-Beschleunigung (GPU) umschaltbar.** Über das WebView2-Startargument `--disable-gpu`, gesteuert durch eine gespeicherte Einstellung beim App-Start (erfordert Neustart, da Browser-Argumente nur beim Erzeugen greifen).
+- 💡 Webview-Pooling: Anbieter-Webviews vorhalten statt neu erzeugen → schnelleres Umschalten.
+- 💡 Datei-Logging mit Rotation (optional aktivierbar) zur leichteren Fehlersuche bei Builds.
+- 💡 Update-Kanäle (stabil/beta) + Changelog direkt im Update-Banner.
+
+### Sicherheit
+- ⏳ Profil-PIN optional als **App-Sperre beim Start** (nicht nur beim Profilwechsel).
+- 💡 PINs verschlüsselt ablegen (OS-Schlüsselspeicher/keyring) statt im Klartext.
+- 💡 Strikte CSP **nur für die OmniHub-Oberfläche** (Anbieter-Webviews bleiben unbeschränkt).
+- 💡 Signatur der Auto-Updates verifizieren + deutlicher Hinweis, falls der Schlüssel fehlt.
+
+### Funktionen
+- ⏳ Sleep-Timer: Schnellauswahl (30/60/90 Min) + Variante „bis Episodenende".
+- ⏳ Zuletzt gewählten **Kategorie-Filter merken** (beim Start wieder aktiv).
+- 💡 Globale Suche über alle Anbieter **und** TMDB in einem Feld.
+- 💡 „Weiterschauen" mit Fortschritts-/Position (soweit der Anbieter es zulässt).
+- 💡 Konfiguration importieren/exportieren (Backup) + Profil-Umzug zwischen Geräten.
+- 💡 Zifferntasten 1–9 als Schnellstart für Anbieter.
+
+### UI
+- ⏳ **Einstellungen optisch überarbeiten** (klarere Gruppen, Icons, einheitliche Schalter/Slider) – in Arbeit.
+- 💡 Anzahl je Kategorie als kleine Zahl am Filter-Chip.
+- 💡 Position des Sleep-Countdowns wählbar (Sidebar/oben/unten).
+- 💡 Kompakter Modus + einstellbare Kartengröße.
+- 💡 Akzentfarbe automatisch aus dem Logo des aktiven Anbieters.
 
 ---
 
